@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Git Command Reference</title>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --surface2: #1c2128; --border: #30363d;
+    --accent: #58a6ff; --accent2: #3fb950; --text: #e6edf3; --text-muted: #8b949e;
+    --text-dim: #6e7681; --cmd: #79c0ff; --tag-bg: #1f3a5f; --tag-text: #79c0ff;
+    --section-head: #f78166;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 0; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 18px 32px 14px;
+    position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; }
+  header h1 { font-size: 1.05rem; font-weight: 600; }
+  header p { font-size: .78rem; color: var(--text-muted); margin-top: 2px; }
+  .header-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { background: var(--tag-bg); color: var(--tag-text); font-size: .7rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px; font-family: 'Consolas', monospace; }
+  main { padding: 28px 32px 60px; max-width: 1100px; margin: 0 auto; }
+  .chapter { display: flex; align-items: center; gap: 10px; margin: 40px 0 20px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); }
+  .chapter:first-of-type { margin-top: 12px; }
+  .chapter-title { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--section-head); }
+  .chapter-line { flex: 1; height: 1px; background: var(--border); }
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: .85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px; }
+  .section-num { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim);
+    font-size: .68rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }
+  .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead th { background: var(--surface2); color: var(--text-muted); font-size: .7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em; padding: 9px 14px; text-align: left;
+    border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(88,166,255,.05); }
+  td { padding: 9px 14px; vertical-align: top; line-height: 1.5; }
+  td:first-child { font-family: 'Consolas', monospace; color: var(--cmd); white-space: nowrap; font-size: .8rem; }
+  td.desc { color: var(--text); }
+  td.stage { font-family: 'Consolas', monospace; color: var(--accent); white-space: nowrap; font-size: .74rem; }
+  td.del-cell { width: 30px; padding: 6px 8px; vertical-align: middle; text-align: center; }
+  .del-btn { background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 1rem;
+    line-height: 1; padding: 2px 4px; border-radius: 4px; transition: color .15s, background .15s; opacity: 0; }
+  tbody tr:hover .del-btn { opacity: 1; }
+  .del-btn:hover { color: #da3633; background: rgba(218,54,51,.12); }
+  .add-row-btn { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; background: var(--surface2);
+    border: 1px dashed var(--border); color: var(--text-muted); font-size: .78rem; padding: 6px 14px;
+    border-radius: 6px; cursor: pointer; transition: border-color .15s, color .15s, background .15s; font-family: inherit; }
+  .add-row-btn:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(63,185,80,.06); }
+  .io-btns { display: flex; gap: 8px; }
+  .io-btn { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600;
+    padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; font-family: inherit;
+    transition: background .15s, border-color .15s, color .15s; }
+  .io-btn.export { background: var(--surface2); color: var(--accent); border-color: var(--accent); }
+  .io-btn.export:hover { background: rgba(88,166,255,.1); }
+  .io-btn.import { background: var(--surface2); color: var(--accent2); border-color: var(--accent2); }
+  .io-btn.import:hover { background: rgba(63,185,80,.1); }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: .8rem;
+    padding: 8px 18px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+    z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .new-row td { background: rgba(63,185,80,.04); }
+  td[contenteditable="true"] { outline: none; border-bottom: 1px solid var(--accent); background: rgba(88,166,255,.05); }
+  .note { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px;
+    margin-bottom: 14px; font-size: .8rem; color: var(--text-muted); line-height: 1.6; }
+  .note b { color: var(--accent); }
+  @media (max-width: 640px) { header, main { padding-left: 16px; padding-right: 16px; } td:first-child { white-space: normal; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Git Command Reference</h1>
+    <p>From first commit to sparse checkout</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div class="header-tags">
+      <span class="tag">Git</span><span class="tag">GitHub</span><span class="tag">Version Control</span>
+    </div>
+    <div class="io-btns">
+      <button class="io-btn export" onclick="exportData()">⬇ Export</button>
+      <button class="io-btn import" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+</header>
+<div class="toast" id="toast"></div>
+
+<main>
+
+<div class="chapter"><span class="chapter-title">Getting Started</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">1</span> Setup &amp; Configuration</div>
+  <div class="tbl-wrap"><table id="tbl-1">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git init</td><td class="desc">Initialize a brand new Git repository in the current folder</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git config --global user.name "Name"</td><td class="desc">Set your name for all commits across all projects</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git config --global user.email "email"</td><td class="desc">Set your email for all commits</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git config --list</td><td class="desc">Show all current Git configuration settings</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-1',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">2</span> Clone &amp; Create</div>
+  <div class="tbl-wrap"><table id="tbl-2">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>mkdir github-projects</td><td class="desc">Create a folder on your computer where projects will live</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git clone &lt;url&gt;</td><td class="desc">Copy a GitHub repository URL and download it to your computer</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>cd repo-name</td><td class="desc">Navigate into the cloned repository folder</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>touch filename.html</td><td class="desc">Create a new file inside the repo folder</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-2',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">3</span> Stage &amp; Commit</div>
+  <div class="tbl-wrap"><table id="tbl-3">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git add filename</td><td class="desc">Stage a specific file so Git starts tracking it</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git add .</td><td class="desc">Stage all new and modified files at once</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git add -A</td><td class="desc">Stage everything — new files, modifications, and deletions</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git add -u</td><td class="desc">Stage only modified and deleted tracked files; ignores new files</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git add -p</td><td class="desc">Interactive — choose exactly which changes within files to stage</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit -m "msg"</td><td class="desc">Commit staged changes with a message</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit -am "msg"</td><td class="desc">Stage all tracked files AND commit in one command (skips new untracked files)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit --amend</td><td class="desc">Modify the last commit — change the message or add more files</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit --amend --no-edit</td><td class="desc">Add staged changes to the last commit without changing its message</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit --allow-empty -m "msg"</td><td class="desc">Create a commit with no file changes — useful for triggering CI</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit -m "msg" --no-verify</td><td class="desc">Skip pre-commit hooks and checks</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-3',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">4</span> Push &amp; Pull</div>
+  <div class="tbl-wrap"><table id="tbl-4">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git push origin main</td><td class="desc">Push your local commits to your remote GitHub repository</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git push -u origin branch</td><td class="desc">Push a branch and set it to track the remote, simplifying future pushes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git push --all</td><td class="desc">Push all local branches to GitHub at once</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git push --force</td><td class="desc">Force push even if it overwrites remote changes — use with caution</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git pull</td><td class="desc">Download and merge the latest changes from GitHub into your local branch</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git pull origin branch</td><td class="desc">Download and merge changes from a specific remote branch</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git fetch</td><td class="desc">Download remote changes without merging — review before pulling</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-4',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="chapter"><span class="chapter-title">Inspecting Changes</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">5</span> Status &amp; Diff</div>
+  <div class="tbl-wrap"><table id="tbl-5">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git status</td><td class="desc">Show modified, staged, and untracked files — run before committing</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git status -s</td><td class="desc">Compact short-form status output</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git status --porcelain</td><td class="desc">Machine-readable status output, useful for scripts</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git diff</td><td class="desc">Show line-by-line changes between working files and the last commit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git diff --staged</td><td class="desc">Show changes that are staged and ready to be committed</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git diff HEAD</td><td class="desc">Show all changes, staged and unstaged, since the last commit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git diff branch1 branch2</td><td class="desc">Compare differences between two branches</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git show &lt;hash&gt;</td><td class="desc">Show full details of a specific commit including all changes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git fsck</td><td class="desc">Check repository integrity — useful if something seems corrupted</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-5',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">6</span> History</div>
+  <div class="tbl-wrap"><table id="tbl-6">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git log</td><td class="desc">View the full commit history of your repository</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git log --oneline</td><td class="desc">Compact one-line view of commit history</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git log --graph --all --decorate</td><td class="desc">Visual branch graph showing all branches and tags</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git log -p</td><td class="desc">Full history including the actual diff changes in each commit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git log --author="name"</td><td class="desc">Show only commits made by a specific author</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git reflog</td><td class="desc">Show all reference changes — best tool for recovering lost commits</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git blame filename</td><td class="desc">Show who changed each line in a file and when</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-6',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="chapter"><span class="chapter-title">Undoing Changes</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">7</span> Reset <span style="color:var(--text-dim);font-weight:400;font-size:.75rem">(--soft keeps changes, --hard deletes them)</span></div>
+  <div class="tbl-wrap"><table id="tbl-7">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git reset --soft HEAD~1</td><td class="desc">Undo the last commit but keep all changes staged</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git reset --hard HEAD~1</td><td class="desc">Undo the last commit and permanently delete all changes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git reset --hard origin/main</td><td class="desc">Reset your local branch to exactly match GitHub, removing local changes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git reset --hard &lt;hash&gt;</td><td class="desc">Go back to a specific commit and remove all later changes permanently</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git reset --hard ORIG_HEAD</td><td class="desc">Undo the last reset, restoring the repository to its previous state</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-7',['Command','Description'])"><span>＋</span> Add row</button>
+  <div class="note" style="margin-top:10px;"><b>Note:</b> Reset only affects your local repository. Your GitHub copy is unchanged — you can always git pull to recover.</div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">8</span> Restore, Revert &amp; Clean</div>
+  <div class="tbl-wrap"><table id="tbl-8">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git restore filename</td><td class="desc">Revert a file to its state in the last commit, discarding your changes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git restore --staged filename</td><td class="desc">Remove a file from the staging area without discarding your edits</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git revert &lt;hash&gt;</td><td class="desc">Create a new commit that undoes a previous one — keeps history visible</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git checkout &lt;hash&gt; -- filename</td><td class="desc">Restore a specific file from a previous commit without changing anything else</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git clean -fd</td><td class="desc">Delete all untracked files and folders — cannot be undone</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git cherry-pick &lt;hash&gt;</td><td class="desc">Apply a specific commit from another branch onto your current branch</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git rebase -i HEAD~n</td><td class="desc">Interactively edit, squash, reorder, or drop your last n commits</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-8',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="chapter"><span class="chapter-title">Branching</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">9</span> Branches</div>
+  <div class="tbl-wrap"><table id="tbl-9">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git branch</td><td class="desc">List all local branches — current branch is marked with *</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git switch -c new-branch</td><td class="desc">Create a new branch AND switch to it immediately</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git checkout -b new-branch</td><td class="desc">Same as above — older syntax for creating and switching in one step</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git switch branch-name</td><td class="desc">Switch to an existing branch</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git branch -m old new</td><td class="desc">Rename a branch</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git branch -d branch-name</td><td class="desc">Delete a branch safely — use -D to force delete unmerged branches</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-9',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">10</span> Merge &amp; Rebase</div>
+  <div class="tbl-wrap"><table id="tbl-10">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git merge branch-name</td><td class="desc">Merge another branch into your current one — creates a merge commit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git rebase branch-name</td><td class="desc">Replay your commits on top of another branch — cleaner history but riskier</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-10',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">11</span> Stash</div>
+  <div class="tbl-wrap"><table id="tbl-11">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git stash</td><td class="desc">Save current uncommitted changes and revert files to the last commit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git stash list</td><td class="desc">Show all saved stashes with their index numbers</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git stash pop</td><td class="desc">Restore the most recent stash and remove it from the list</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git stash apply stash@{n}</td><td class="desc">Restore a specific stash but keep it saved for reuse</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git stash drop stash@{n}</td><td class="desc">Delete a specific stash you no longer need</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git stash clear</td><td class="desc">Delete ALL stashes permanently</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-11',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="chapter"><span class="chapter-title">Remote &amp; Tags</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">12</span> Remote Operations</div>
+  <div class="tbl-wrap"><table id="tbl-12">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git remote -v</td><td class="desc">Show all remotes and their URLs (fetch and push addresses)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git remote add origin &lt;url&gt;</td><td class="desc">Connect your local repo to a GitHub URL for the first time</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-12',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">13</span> Tags &amp; Versions</div>
+  <div class="tbl-wrap"><table id="tbl-13">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git tag</td><td class="desc">List all tags in your repository</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git tag -a v1.0 -m "Version 1.0"</td><td class="desc">Create an annotated tag with a message for a release</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git push origin v1.0</td><td class="desc">Upload a specific tag to GitHub</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git push origin --tags</td><td class="desc">Upload all local tags to GitHub at once</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-13',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="chapter"><span class="chapter-title">Sparse Checkout (Advanced)</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">14</span> Partial Clone Setup <span style="color:var(--text-dim);font-weight:400;font-size:.75rem">(checkout only some files from a large repo)</span></div>
+  <div class="tbl-wrap"><table id="tbl-14">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git clone --no-checkout &lt;url&gt;</td><td class="desc">Clone the repo without checking out any files yet</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git sparse-checkout init --no-cone</td><td class="desc">Enable sparse-checkout using Git's pattern mode</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git sparse-checkout set --no-cone '/*' '!/*/'</td><td class="desc">Keep root-level files only, exclude all directories</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git sparse-checkout list</td><td class="desc">Show the patterns Git is currently checking out</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-14',['Command','Description'])"><span>＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">15</span> Selecting Specific Files</div>
+  <div class="tbl-wrap"><table id="tbl-15">
+    <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git ls-tree -r --name-only HEAD -- folder</td><td class="desc">List every file inside a folder without checking any of them out</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>... | head -40 | git sparse-checkout add --stdin</td><td class="desc">Add just the first 40 listed files to the sparse checkout</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>... | sed -n '41,80p' | git sparse-checkout add --stdin</td><td class="desc">Add a later range (e.g. files 41–80) without starting over</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git sparse-checkout add path/to/file</td><td class="desc">Explicitly add one exact file — safest way to guarantee it's included</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-15',['Command','Description'])"><span>＋</span> Add row</button>
+  <div class="note" style="margin-top:10px;"><b>Tip:</b> Because ls-tree lists recursively, a wanted file might land inside a range by accident — add exact must-have files explicitly to be safe.</div>
+</div>
+
+<div class="chapter"><span class="chapter-title">Quick Reference</span><div class="chapter-line"></div></div>
+
+<div class="section">
+  <div class="section-title">All Commands at a Glance</div>
+  <div class="tbl-wrap"><table id="tbl-qr">
+    <thead><tr><th>Command</th><th>Purpose</th><th>Stage</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>git init / clone</td><td class="desc">Start or download a repository</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git add</td><td class="desc">Stage changes for commit</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git commit</td><td class="desc">Save staged changes to history</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git push / pull / fetch</td><td class="desc">Sync commits with GitHub</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git status / diff</td><td class="desc">Inspect what changed</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git log / reflog / blame</td><td class="desc">Explore commit history</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git reset / restore / revert</td><td class="desc">Undo commits or changes</td><td class="stage">S4</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git branch / switch / checkout</td><td class="desc">Create and move between branches</td><td class="stage">S5</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git merge / rebase</td><td class="desc">Combine branch histories</td><td class="stage">S5</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git stash</td><td class="desc">Temporarily shelve changes</td><td class="stage">S5</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git tag</td><td class="desc">Mark release points in history</td><td class="stage">S6</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td>git sparse-checkout</td><td class="desc">Check out only part of a large repo</td><td class="stage">S7</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+  </table></div>
+  <button class="add-row-btn" onclick="addRow('tbl-qr',['Command','Purpose','Stage'])"><span>＋</span> Add row</button>
+</div>
+
+</main>
+
+<script>
+function addRow(tableId, colLabels) {
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  const colCount = colLabels.length;
+  const tr = document.createElement('tr');
+  tr.classList.add('new-row');
+  for (let i = 0; i < colCount; i++) {
+    const td = document.createElement('td');
+    td.contentEditable = 'true';
+    td.setAttribute('placeholder', colLabels[i]);
+    if (i === 0) { td.style.fontFamily = "'Consolas','Courier New',monospace"; td.style.color = 'var(--cmd)'; td.style.fontSize = '.8rem'; }
+    else if (colCount === 3 && i === 2) { td.classList.add('stage'); }
+    else { td.classList.add('desc'); }
+    td.addEventListener('keydown', e => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const cells = Array.from(tr.querySelectorAll('[contenteditable]'));
+        const idx = cells.indexOf(e.target);
+        if (idx < cells.length - 1) cells[idx + 1].focus(); else cells[0].focus();
+      }
+      if (e.key === 'Enter') { e.preventDefault(); }
+    });
+    tr.appendChild(td);
+  }
+  const delTd = document.createElement('td');
+  delTd.className = 'del-cell';
+  const btn = document.createElement('button');
+  btn.className = 'del-btn'; btn.textContent = '✕'; btn.onclick = () => delRow(btn);
+  delTd.appendChild(btn); tr.appendChild(delTd);
+  tbody.appendChild(tr);
+  tr.querySelector('[contenteditable]').focus();
+}
+
+function delRow(btn) {
+  const row = btn.closest('tr');
+  row.style.transition = 'opacity .2s';
+  row.style.opacity = '0';
+  setTimeout(() => row.remove(), 200);
+}
+
+function exportData() {
+  const data = {};
+  document.querySelectorAll('table[id]').forEach(table => {
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim()).filter(h => h);
+    const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr =>
+      Array.from(tr.querySelectorAll('td:not(.del-cell)')).map(td => td.textContent.trim()));
+    data[table.id] = { headers, rows };
+  });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'git-command-reference.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ Exported successfully');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      let restored = 0;
+      for (const [id, { rows }] of Object.entries(data)) {
+        const table = document.getElementById(id);
+        if (!table) continue;
+        const tbody = table.querySelector('tbody');
+        const colCount = table.querySelectorAll('thead th').length - 1;
+        tbody.innerHTML = '';
+        rows.forEach(cells => {
+          const tr = document.createElement('tr');
+          cells.slice(0, colCount).forEach((val, i) => {
+            const td = document.createElement('td');
+            td.textContent = val;
+            if (i === 0) { td.style.fontFamily = "'Consolas','Courier New',monospace"; td.style.color = 'var(--cmd)'; td.style.fontSize = '.8rem'; }
+            else if (colCount === 3 && i === 2) { td.classList.add('stage'); }
+            else { td.classList.add('desc'); }
+            tr.appendChild(td);
+          });
+          const delTd = document.createElement('td');
+          delTd.className = 'del-cell';
+          const btn = document.createElement('button');
+          btn.className = 'del-btn'; btn.textContent = '✕'; btn.onclick = () => delRow(btn);
+          delTd.appendChild(btn); tr.appendChild(delTd);
+          tbody.appendChild(tr);
+        });
+        restored++;
+      }
+      showToast(`✓ Imported ${restored} tables`);
+    } catch { showToast('✗ Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+</script>
+</body>
+</html>

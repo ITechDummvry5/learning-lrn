@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Linux Command Reference</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-dim: #6e7681;
+    --cmd: #79c0ff;
+    --tag-bg: #1f3a5f;
+    --tag-text: #79c0ff;
+    --section-head: #f78166;
+    --add-btn: #238636;
+    --add-btn-hover: #2ea043;
+    --del-btn: #b62324;
+    --del-btn-hover: #da3633;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── TOP BAR ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: .02em;
+  }
+  header p {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .header-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: .7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-family: 'Consolas', 'Courier New', monospace;
+  }
+
+  /* ── LAYOUT ── */
+  main { padding: 28px 32px 60px; max-width: 1100px; margin: 0 auto; }
+
+  /* ── CHAPTER HEADING ── */
+  .chapter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 40px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter:first-of-type { margin-top: 12px; }
+  .chapter-title {
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--section-head);
+  }
+  .chapter-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 32px; }
+  .section-title {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-num {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: .68rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+  }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .82rem;
+    table-layout: auto;
+  }
+  thead th {
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 9px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .12s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(88,166,255,.05); }
+  td {
+    padding: 9px 14px;
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  td:first-child {
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: var(--cmd);
+    white-space: nowrap;
+    font-size: .8rem;
+  }
+  td.value { color: var(--accent2); }
+  td.desc { color: var(--text); }
+  td.notes { color: var(--text-muted); font-style: italic; font-size: .78rem; }
+
+  /* ── DELETE CELL ── */
+  td.del-cell {
+    width: 30px;
+    padding: 6px 8px;
+    vertical-align: middle;
+    text-align: center;
+  }
+  .del-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color .15s, background .15s;
+    opacity: 0;
+  }
+  tbody tr:hover .del-btn { opacity: 1; }
+  .del-btn:hover { color: #da3633; background: rgba(218,54,51,.12); }
+
+  /* ── ADD ROW BUTTON ── */
+  .add-row-btn {
+    margin-top: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    font-size: .78rem;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+    font-family: inherit;
+  }
+  .add-row-btn:hover {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(63,185,80,.06);
+  }
+  .add-row-btn .ico { font-size: 1rem; line-height: 1; }
+
+  /* ── IMPORT / EXPORT ── */
+  .io-btns { display: flex; gap: 8px; }
+  .io-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, border-color .15s, color .15s;
+  }
+  .io-btn.export {
+    background: var(--surface2);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .io-btn.export:hover { background: rgba(88,166,255,.1); }
+  .io-btn.import {
+    background: var(--surface2);
+    color: var(--accent2);
+    border-color: var(--accent2);
+  }
+  .io-btn.import:hover { background: rgba(63,185,80,.1); }
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: .8rem;
+    padding: 8px 18px;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── INLINE EDITING ── */
+  .new-row td { background: rgba(63,185,80,.04); }
+  td[contenteditable="true"] {
+    outline: none;
+    border-bottom: 1px solid var(--accent);
+    background: rgba(88,166,255,.05);
+  }
+
+  /* ── PERM DIAGRAM ── */
+  .perm-diagram {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    font-family: 'Consolas', monospace;
+    font-size: .8rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── QUICK REF TABLE (no borders between rows) ── */
+  .quickref tbody tr { border-bottom: 1px solid rgba(48,54,61,.6); }
+  .quickref td.stage {
+    font-family: 'Consolas', monospace;
+    color: var(--accent);
+    white-space: nowrap;
+    font-size: .74rem;
+  }
+
+  @media (max-width: 640px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+    td:first-child { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Linux Command Reference</h1>
+    <p>Terminal basics to system administration</p>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div class="header-tags">
+      <span class="tag">Linux</span>
+      <span class="tag">Kali</span>
+      <span class="tag">Debian</span>
+      <span class="tag">Ubuntu</span>
+    </div>
+    <div class="io-btns">
+      <button class="io-btn export" onclick="exportData()">⬇ Export</button>
+      <button class="io-btn import" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+</header>
+<div class="toast" id="toast"></div>
+
+<main>
+
+<!-- ════════════════════════════════════════════ TERMINAL FUNDAMENTALS -->
+<div class="chapter">
+  <span class="chapter-title">Terminal Fundamentals</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 1 · Terminal Basics -->
+<div class="section">
+  <div class="section-title"><span class="section-num">1</span> Terminal Basics</div>
+  <div class="tbl-wrap">
+    <table id="tbl-1">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>whoami</td><td class="desc">Print the name of the currently logged-in user</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>pwd</td><td class="desc">Print Working Directory — shows your current location in the file system</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>clear</td><td class="desc">Clear all output from the terminal screen (does not delete history)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>history</td><td class="desc">Display a numbered list of previously run commands in this session</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>!NUMBER</td><td class="desc">Re-run a specific command by its history number (e.g. !42)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>exit</td><td class="desc">Close the current terminal session or log out of a shell</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-1',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 2 · Keyboard Shortcuts -->
+<div class="section">
+  <div class="section-title"><span class="section-num">2</span> Keyboard Shortcuts</div>
+  <div class="tbl-wrap">
+    <table id="tbl-2">
+      <thead><tr><th>Shortcut</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Tab</td><td class="desc">Autocomplete a command, file name, or path — press twice to see all options</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>↑ / ↓</td><td class="desc">Cycle through previous and next commands in history</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + C</td><td class="desc">Force-stop the currently running command or process</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + L</td><td class="desc">Clear the terminal screen (same as running clear)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + D</td><td class="desc">Send end-of-file signal — exits the current shell or Python/Node REPL</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-2',['Shortcut','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 3 · Getting Help -->
+<div class="section">
+  <div class="section-title"><span class="section-num">3</span> Getting Help</div>
+  <div class="tbl-wrap">
+    <table id="tbl-3">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>command --help</td><td class="desc">Show a brief usage summary for almost any command (e.g. ls --help)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>man ls</td><td class="desc">Open the full manual page for a command — scroll with arrow keys, press q to quit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>which python</td><td class="desc">Show the full file path of a command's executable (e.g. /usr/bin/python3)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>command -v nmap</td><td class="desc">Check whether a command is installed; returns its path or nothing if missing</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-3',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ FILES AND DIRECTORIES -->
+<div class="chapter">
+  <span class="chapter-title">Files and Directories</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 4 · Navigation -->
+<div class="section">
+  <div class="section-title"><span class="section-num">4</span> Navigation</div>
+  <div class="tbl-wrap">
+    <table id="tbl-4">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>ls</td><td class="desc">List files and folders in the current directory</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ls -l</td><td class="desc">Long format — shows permissions, owner, size, and modification date</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ls -a</td><td class="desc">Show hidden files and folders (those starting with a dot)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ls -la</td><td class="desc">Combine long format and hidden files in one view</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cd folder</td><td class="desc">Enter a named folder (e.g. cd Documents)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cd ..</td><td class="desc">Go up one level to the parent directory</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cd ~</td><td class="desc">Jump to your home directory from anywhere</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cd /</td><td class="desc">Jump to the root of the entire file system</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-4',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 5 · Create and Read -->
+<div class="section">
+  <div class="section-title"><span class="section-num">5</span> Create and Read Files and Folders</div>
+  <div class="tbl-wrap">
+    <table id="tbl-5">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>mkdir folder</td><td class="desc">Create a new folder</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>mkdir folder1 folder2</td><td class="desc">Create multiple folders at once</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>mkdir -p parent/child</td><td class="desc">Create parent and child folders if they do not exist</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>touch file.txt</td><td class="desc">Create an empty file, or update a file's timestamp if it already exists</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>touch f1 f2 f3</td><td class="desc">Create multiple empty files at once in a single command</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cat file.txt</td><td class="desc">Print the full contents of a file directly to the terminal</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>less file.txt</td><td class="desc">Read a file one screen at a time — scroll with arrow keys, press q to quit</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-5',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 6 · Nano -->
+<div class="section">
+  <div class="section-title"><span class="section-num">6</span> Nano Text Editor</div>
+  <div class="tbl-wrap">
+    <table id="tbl-6">
+      <thead><tr><th>Shortcut</th><th>Action</th><th>Notes</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Ctrl + O</td><td class="desc">Save (write out) the current file</td><td class="notes">Press Enter to confirm the filename</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + X</td><td class="desc">Exit Nano — prompts to save if you have unsaved changes</td><td class="notes"></td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + K</td><td class="desc">Cut (delete) the entire current line</td><td class="notes"></td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + U</td><td class="desc">Paste the last cut line at the cursor position</td><td class="notes"></td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + W</td><td class="desc">Open the search prompt to find text in the file</td><td class="notes"></td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Ctrl + G</td><td class="desc">Display the full help screen with all available shortcuts</td><td class="notes"></td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-6',['Shortcut','Action','Notes'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 7 · Copy Move Delete -->
+<div class="section">
+  <div class="section-title"><span class="section-num">7</span> Copy, Move, and Delete</div>
+  <div class="tbl-wrap">
+    <table id="tbl-7">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>cp file.txt backup.txt</td><td class="desc">Copy a file to a new name or location</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cp -r folder1 folder2</td><td class="desc">Recursively copy an entire directory and all its contents</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>mv file.txt folder/</td><td class="desc">Move a file into a different directory</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>mv old.txt new.txt</td><td class="desc">Rename a file / folder — moving it to a new name in the same location</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>rm file.txt</td><td class="desc">Delete a file permanently (no Trash/Recycle Bin)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>rmdir folder</td><td class="desc">Delete a directory — only works if the folder is completely empty</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>rm -r folder</td><td class="desc">Recursively delete a directory and everything inside it</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-7',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ WORKING WITH TEXT -->
+<div class="chapter">
+  <span class="chapter-title">Working with Text</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 8 · Echo -->
+<div class="section">
+  <div class="section-title"><span class="section-num">8</span> Echo and Redirection</div>
+  <div class="tbl-wrap">
+    <table id="tbl-8">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>echo "Hello"</td><td class="desc">Print text to the terminal output</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>echo "Hi" > file.txt</td><td class="desc">Write text to a file — overwrites existing content</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>echo "Hi" >> file.txt</td><td class="desc">Append text to the end of a file without erasing what's there</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-8',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 9 · Grep -->
+<div class="section">
+  <div class="section-title"><span class="section-num">9</span> Grep and Pipe</div>
+  <div class="tbl-wrap">
+    <table id="tbl-9">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>grep "word" file.txt</td><td class="desc">Search for a word or pattern inside a file; prints matching lines</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>grep "Hello" hello.txt</td><td class="desc">Find all lines containing "Hello" in hello.txt</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ls | grep ".txt"</td><td class="desc">List files, then filter the output to show only .txt files</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cat file.txt | grep "word"</td><td class="desc">Read a file and filter lines to only those matching a word</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>command1 | command2</td><td class="desc">Pipe — sends the output of command1 as the input to command2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-9',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 10 · Find -->
+<div class="section">
+  <div class="section-title"><span class="section-num">10</span> Find and Locate</div>
+  <div class="tbl-wrap">
+    <table id="tbl-10">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>find . -name "*.txt"</td><td class="desc">Search recursively from the current directory for files matching a pattern</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>locate filename</td><td class="desc">Quickly find a file by name using a pre-built database index (faster than find)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt install plocate -y</td><td class="desc">Install the locate command if it's not already available</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-10',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 11 · View File Content -->
+<div class="section">
+  <div class="section-title"><span class="section-num">11</span> View File Content</div>
+  <div class="tbl-wrap">
+    <table id="tbl-11">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>head file.txt</td><td class="desc">Show the first 10 lines of a file (default)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>head -n 20 file.txt</td><td class="desc">Show the first N lines of a file</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>tail file.txt</td><td class="desc">Show the last 10 lines of a file (default)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>tail -n 20 file.txt</td><td class="desc">Show the last N lines of a file</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>tail -f file.log</td><td class="desc">Watch a file in real time — new lines appear as they are written (useful for logs). Press Ctrl+C to stop.</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-11',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 12 · Count Sort -->
+<div class="section">
+  <div class="section-title"><span class="section-num">12</span> Count, Sort, and Remove Duplicates</div>
+  <div class="tbl-wrap">
+    <table id="tbl-12">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>wc -l file.txt</td><td class="desc">Count the total number of lines in a file</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sort file.txt</td><td class="desc">Output file lines sorted alphabetically</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>uniq file.txt</td><td class="desc">Remove duplicate lines that appear consecutively (best combined with sort first)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-12',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 13 · History -->
+<div class="section">
+  <div class="section-title"><span class="section-num">13</span> Search Command History</div>
+  <div class="tbl-wrap">
+    <table id="tbl-13">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>history | grep nmap</td><td class="desc">Filter your command history to find past uses of a specific command</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-13',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ FILE PERMISSIONS -->
+<div class="chapter">
+  <span class="chapter-title">File Permissions</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 14 · Understanding Permissions -->
+<div class="section">
+  <div class="section-title"><span class="section-num">14</span> Understanding Permissions</div>
+  <div class="tbl-wrap">
+    <table id="tbl-14a">
+      <thead><tr><th>Symbol</th><th>Meaning</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>d</td><td class="desc">Directory (folder)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-</td><td class="desc">Regular file</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>l</td><td class="desc">Symbolic link (shortcut/link to another file or directory)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-14a',['Symbol','Meaning'])"><span class="ico">＋</span> Add row</button>
+
+  <div class="perm-diagram" style="margin-top:16px;">drwxr-xr-x  2 robin robin 4096 Sep 22 folder
+-rw-r--r--  1 robin robin   25 Sep 22 file.txt
+
+      d   rwx   r-x   r-x
+      │    │     │     │
+      │    │     │     └── Others
+      │    │     └──────── Group
+      │    └────────────── Owner
+      └─────────────────── File type</div>
+
+  <div class="tbl-wrap" style="margin-top:10px;">
+    <table id="tbl-14b">
+      <thead><tr><th>Symbol</th><th>Meaning</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>r</td><td class="desc">Read</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>w</td><td class="desc">Write</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>x</td><td class="desc">Execute</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-</td><td class="desc">Permission not granted</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl-wrap" style="margin-top:10px;">
+    <table id="tbl-14c">
+      <thead><tr><th>Section</th><th>Meaning</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Owner (u)</td><td class="desc">The user who created or owns the file — has the most control</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Group (g)</td><td class="desc">Users who belong to the file's assigned group — shared team access</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>Others (o)</td><td class="desc">Everyone else on the system — typically given the least access</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-14c',['Section','Meaning'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 15 · Symbolic chmod -->
+<div class="section">
+  <div class="section-title"><span class="section-num">15</span> Symbolic chmod</div>
+  <div class="tbl-wrap">
+    <table id="tbl-15a">
+      <thead><tr><th>Symbol</th><th>Meaning</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>u</td><td class="desc">User / Owner</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>g</td><td class="desc">Group</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>o</td><td class="desc">Others</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>a</td><td class="desc">All — owner, group, and others</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>+</td><td class="desc">Add / give a permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-</td><td class="desc">Remove / take away a permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>r</td><td class="desc">Read</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>w</td><td class="desc">Write</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>x</td><td class="desc">Execute</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tbl-wrap" style="margin-top:10px;">
+    <table id="tbl-15b">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>chmod u+rwx file.sh</td><td class="desc">Give the owner read, write, and execute permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod u+rw file.txt</td><td class="desc">Give the owner read and write permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod u+x file.sh</td><td class="desc">Make the file executable by the owner</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod g+rw file.txt</td><td class="desc">Give the group read and write permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod o+r file.txt</td><td class="desc">Give all other users read permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod a+rwx file.sh</td><td class="desc">Give everyone (owner, group, others) full permissions</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod u-x file.sh</td><td class="desc">Remove execute permission from the owner</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod g-w file.txt</td><td class="desc">Remove write permission from the group</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod o-r file.txt</td><td class="desc">Remove read permission from others</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod a-w file.txt</td><td class="desc">Remove write permission from everyone</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-15b',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 16-17 · Numeric chmod -->
+<div class="section">
+  <div class="section-title"><span class="section-num">16–17</span> Numeric chmod Values</div>
+  <div class="tbl-wrap">
+    <table id="tbl-16">
+      <thead><tr><th>Value</th><th>Binary</th><th>Permission</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td class="value">---</td><td class="desc">No permission</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>1</td><td class="value">--x</td><td class="desc">Execute only</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>2</td><td class="value">-w-</td><td class="desc">Write only</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>3</td><td class="value">-wx</td><td class="desc">Write + Execute</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>4</td><td class="value">r--</td><td class="desc">Read only</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>5</td><td class="value">r-x</td><td class="desc">Read + Execute</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>6</td><td class="value">rw-</td><td class="desc">Read + Write</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>7</td><td class="value">rwx</td><td class="desc">Read + Write + Execute</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-16',['Value','Binary','Permission'])"><span class="ico">＋</span> Add row</button>
+
+  <div class="tbl-wrap" style="margin-top:10px;">
+    <table id="tbl-17">
+      <thead><tr><th>chmod</th><th>Permissions</th><th>Typical use</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>600</td><td class="value">rw- --- ---</td><td class="desc">Owner read/write — private keys, config files</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>644</td><td class="value">rw- r-- r--</td><td class="desc">Owner writes, everyone reads — web pages</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>700</td><td class="value">rwx --- ---</td><td class="desc">Owner full access only — private scripts</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>755</td><td class="value">rwx r-x r-x</td><td class="desc">Owner full, others can run — public scripts</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>775</td><td class="value">rwx rwx r-x</td><td class="desc">Owner and group full — shared team projects</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>777</td><td class="value">rwx rwx rwx</td><td class="desc">Everyone full — avoid; use minimum needed</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-17',['chmod','Permissions','Typical use'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ OWNERSHIP, USERS AND GROUPS -->
+<div class="chapter">
+  <span class="chapter-title">Ownership, Users and Groups</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 19 · chown -->
+<div class="section">
+  <div class="section-title"><span class="section-num">19</span> chown — File Ownership</div>
+  <div class="tbl-wrap">
+    <table id="tbl-19">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>sudo chown username file.txt</td><td class="desc">Change the owner of a file to a different user</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo chown username:group file.txt</td><td class="desc">Change both the owner and group of a file at once</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo chown -R username folder</td><td class="desc">Recursively change ownership of a directory and all its contents</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo chown -R username:group folder</td><td class="desc">Recursively change owner and group of a directory and all contents</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-19',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 20 · Users -->
+<div class="section">
+  <div class="section-title"><span class="section-num">20</span> Users</div>
+  <div class="tbl-wrap">
+    <table id="tbl-20">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>whoami</td><td class="desc">Show the username of the currently active user</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>who</td><td class="desc">List all users currently logged into the system</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>id</td><td class="desc">Display your user ID (UID), group ID (GID), and all group memberships</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo adduser username</td><td class="desc">Create a new user account with a home directory and prompts for a password</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>su username</td><td class="desc">Switch to another user account within the current terminal session</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-20',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 21 · Groups -->
+<div class="section">
+  <div class="section-title"><span class="section-num">21</span> Groups</div>
+  <div class="tbl-wrap">
+    <table id="tbl-21">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>groups</td><td class="desc">List all groups the current user belongs to</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo usermod -aG groupname username</td><td class="desc">Add a user to a group without removing them from existing groups (-a = append, -G = groups)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo usermod -aG sudo username</td><td class="desc">Grant a user administrator (sudo) privileges</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-21',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 22 · sudo -->
+<div class="section">
+  <div class="section-title"><span class="section-num">22</span> sudo and Root</div>
+  <div class="tbl-wrap">
+    <table id="tbl-22">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>sudo command</td><td class="desc">Run a single command with root/administrator privileges (prompts for your password)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt update</td><td class="desc">Example — refresh the list of available software packages</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo -i</td><td class="desc">Open an interactive root shell — all commands in this session run as root</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>exit</td><td class="desc">Leave the root shell and return to your normal user session</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-22',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ SOFTWARE AND PACKAGES -->
+<div class="chapter">
+  <span class="chapter-title">Software and Packages</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 23 · APT -->
+<div class="section">
+  <div class="section-title"><span class="section-num">23</span> APT Package Management</div>
+  <div class="tbl-wrap">
+    <table id="tbl-23">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>sudo apt update</td><td class="desc">Refresh the local list of available packages from repositories — run this first before installing</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt upgrade</td><td class="desc">Upgrade all installed packages to their latest available versions</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt full-upgrade -y</td><td class="desc">Upgrade packages and also handle changes in dependencies (more thorough than upgrade)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt install package -y</td><td class="desc">Install a new package; -y automatically answers Yes to all prompts</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt remove package</td><td class="desc">Uninstall a package but keep its configuration files</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt autoremove</td><td class="desc">Remove packages that were installed as dependencies but are no longer needed</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-23',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 24 · Search -->
+<div class="section">
+  <div class="section-title"><span class="section-num">24</span> Search and List Software</div>
+  <div class="tbl-wrap">
+    <table id="tbl-24">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>apt search nmap</td><td class="desc">Search available packages by keyword — no sudo needed</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>apt list --installed</td><td class="desc">Show all packages currently installed on the system</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>command -v nmap</td><td class="desc">Check if a specific command is installed (returns path or empty)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>which nmap</td><td class="desc">Show the full path to an installed command's executable</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-24',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ SYSTEM INFORMATION -->
+<div class="chapter">
+  <span class="chapter-title">System Information</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 25 · System Info -->
+<div class="section">
+  <div class="section-title"><span class="section-num">25</span> System Info</div>
+  <div class="tbl-wrap">
+    <table id="tbl-25">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>cat /etc/os-release</td><td class="desc">Show the Linux distribution name, version, and other release details</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>uname -a</td><td class="desc">Print all kernel information including version, architecture, and hostname</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>df -h</td><td class="desc">Show disk usage for all mounted partitions in human-readable sizes (GB/MB)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>free -h</td><td class="desc">Show total, used, and available RAM and swap memory in human-readable sizes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>hostname</td><td class="desc">Display the machine's hostname (computer name on the network)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>hostname -I</td><td class="desc">Show all local IP addresses assigned to this machine</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>uptime</td><td class="desc">Show how long the system has been running and the current load average</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-25',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 26 · Processes -->
+<div class="section">
+  <div class="section-title"><span class="section-num">26</span> Processes</div>
+  <div class="tbl-wrap">
+    <table id="tbl-26">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>ps</td><td class="desc">List processes started by the current user in this session</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ps aux</td><td class="desc">Show all running processes system-wide with user, CPU, and memory details</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>htop</td><td class="desc">Interactive live process monitor — shows CPU, memory, and process tree in real time. Press q to quit.</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt install htop -y</td><td class="desc">Install htop if it's not already on the system</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-26',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 27 · Restart Shutdown -->
+<div class="section">
+  <div class="section-title"><span class="section-num">27</span> Restart and Shutdown</div>
+  <div class="tbl-wrap">
+    <table id="tbl-27">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>sudo reboot</td><td class="desc">Gracefully restart the system — closes all processes first</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo shutdown now</td><td class="desc">Immediately shut down the system</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-27',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ NETWORKING -->
+<div class="chapter">
+  <span class="chapter-title">Networking</span>
+  <div class="chapter-line"></div>
+</div>
+
+<!-- 28 · Network Info -->
+<div class="section">
+  <div class="section-title"><span class="section-num">28</span> Network Information</div>
+  <div class="tbl-wrap">
+    <table id="tbl-28">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>ip a</td><td class="desc">Show all network interfaces, their IP addresses, and MAC addresses</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ip addr</td><td class="desc">Same as ip a — full alias for the same output</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>hostname -I</td><td class="desc">Quick way to see just your local IP address(es)</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-28',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- 29 · DNS -->
+<div class="section">
+  <div class="section-title"><span class="section-num">29</span> Test Connection and DNS</div>
+  <div class="tbl-wrap">
+    <table id="tbl-29">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>ping example.com</td><td class="desc">Send ICMP packets to a host to test connectivity and measure response time. Press Ctrl+C to stop.</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nslookup example.com</td><td class="desc">Query DNS to resolve a domain name to its IP address</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo apt install dnsutils -y</td><td class="desc">Install nslookup and other DNS tools if not already present</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-29',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ NMAP -->
+<div class="chapter">
+  <span class="chapter-title">Nmap Basics</span>
+  <div class="chapter-line"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">30–31</span> Install and Scan</div>
+  <div class="tbl-wrap">
+    <table id="tbl-30">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>sudo apt install nmap -y</td><td class="desc">Install the Nmap network scanner</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nmap --version</td><td class="desc">Confirm Nmap is installed and check its version</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nmap example.com</td><td class="desc">Basic scan — discovers open ports on the target host</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nmap -sV example.com</td><td class="desc">Service/version detection scan — identifies what software is running on open ports</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-30',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ VM / KALI SETUP -->
+<div class="chapter">
+  <span class="chapter-title">Virtual Machine / Kali Setup</span>
+  <div class="chapter-line"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">32</span> VirtualBox Guest Additions <span style="color:var(--text-dim);font-weight:400;font-size:.75rem">(run inside Linux VM)</span></div>
+  <div class="tbl-wrap">
+    <table id="tbl-32">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>sudo apt install -y virtualbox-guest-utils virtualbox-guest-x11</td><td class="desc">Install Guest Additions to enable shared clipboard, drag-and-drop, and auto screen resize</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo reboot</td><td class="desc">Restart the VM to apply the Guest Additions changes</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-32',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">33</span> Windows Virtualization <span style="color:var(--text-dim);font-weight:400;font-size:.75rem">(run in Windows CMD/PowerShell as Administrator)</span></div>
+  <div class="tbl-wrap">
+    <table id="tbl-33">
+      <thead><tr><th>Command</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>bcdedit /set hypervisorlaunchtype off</td><td class="desc">Disable Hyper-V — required for VirtualBox to use hardware virtualization. Restart Windows after.</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>bcdedit /set hypervisorlaunchtype auto</td><td class="desc">Re-enable Hyper-V (WSL2, Docker Desktop). Restart Windows after.</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-33',['Command','Description'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ COMMON OPTIONS -->
+<div class="chapter">
+  <span class="chapter-title">Common Command Options</span>
+  <div class="chapter-line"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><span class="section-num">34</span> Common Flags</div>
+  <div class="tbl-wrap">
+    <table id="tbl-34">
+      <thead><tr><th>Option</th><th>Meaning</th><th>Where used</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>-a</td><td class="desc">Show all / hidden files (also: append in some contexts)</td><td class="notes">ls, usermod</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-l</td><td class="desc">Long / detailed listing format</td><td class="notes">ls</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-r</td><td class="desc">Reverse order in sort; recursive in some commands</td><td class="notes">sort, rm, cp</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-R</td><td class="desc">Recursive — apply to all files in a directory tree</td><td class="notes">chmod, chown, cp</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-h</td><td class="desc">Human-readable sizes (KB, MB, GB instead of raw bytes)</td><td class="notes">df, free</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-y</td><td class="desc">Automatically confirm all Yes/No prompts without interaction</td><td class="notes">apt install</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-sV</td><td class="desc">Service and version detection during a scan</td><td class="notes">nmap</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-aG</td><td class="desc">Append user to a group without removing from existing groups</td><td class="notes">usermod</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-n</td><td class="desc">Specify a number (e.g. number of lines)</td><td class="notes">head, tail</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-f</td><td class="desc">Follow / force — follow file updates in tail; force in some commands</td><td class="notes">tail</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>-i</td><td class="desc">Interactive root shell / case-insensitive search</td><td class="notes">sudo, grep</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-34',['Option','Meaning','Where used'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+<!-- ════════════════════════════════════════════ QUICK REFERENCE -->
+<div class="chapter">
+  <span class="chapter-title">Quick Command Reference</span>
+  <div class="chapter-line"></div>
+</div>
+
+<div class="section">
+  <div class="section-title">All Commands at a Glance</div>
+  <div class="tbl-wrap">
+    <table id="tbl-qr" class="quickref">
+      <thead><tr><th>Command</th><th>Purpose</th><th>Stage</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>whoami</td><td class="desc">Print current logged-in user</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>pwd</td><td class="desc">Print current working directory path</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ls</td><td class="desc">List directory contents</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cd</td><td class="desc">Change directory</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>mkdir</td><td class="desc">Create a new directory</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>touch</td><td class="desc">Create empty file or update timestamp</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cat</td><td class="desc">Print file contents to terminal</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nano</td><td class="desc">Open terminal text editor</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>cp</td><td class="desc">Copy files or directories</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>mv</td><td class="desc">Move or rename files and directories</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>rm</td><td class="desc">Delete files or directories</td><td class="stage">S2</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>echo</td><td class="desc">Print text or write to a file</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>grep</td><td class="desc">Search text patterns in files or output</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>find</td><td class="desc">Search for files and directories</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>head / tail</td><td class="desc">Show first or last lines of a file</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sort / uniq / wc</td><td class="desc">Sort, deduplicate, and count file content</td><td class="stage">S3</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chmod</td><td class="desc">Change file read/write/execute permissions</td><td class="stage">S4</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>chown</td><td class="desc">Change file owner and/or group</td><td class="stage">S5</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>who / id / groups</td><td class="desc">Show current user, UID/GID, group membership</td><td class="stage">S5</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>sudo</td><td class="desc">Run a command as administrator/root</td><td class="stage">S5</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>apt</td><td class="desc">Install, remove, and manage software packages</td><td class="stage">S6</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ps / htop</td><td class="desc">View and monitor running processes</td><td class="stage">S7</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>df / free</td><td class="desc">Check disk space and RAM usage</td><td class="stage">S7</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ip / hostname</td><td class="desc">View network interfaces and IP addresses</td><td class="stage">S8</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>ping</td><td class="desc">Test network connectivity to a host</td><td class="stage">S8</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nslookup</td><td class="desc">Look up DNS records for a domain</td><td class="stage">S8</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>nmap</td><td class="desc">Scan network hosts for open ports and services</td><td class="stage">S9</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>history</td><td class="desc">Show list of previously run commands</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+        <tr><td>man</td><td class="desc">Open the manual page for any command</td><td class="stage">S1</td><td class="del-cell"><button class="del-btn" onclick="delRow(this)" title="Delete row">✕</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addRow('tbl-qr',['Command','Purpose','Stage'])"><span class="ico">＋</span> Add row</button>
+</div>
+
+</main>
+
+<script>
+function addRow(tableId, colLabels) {
+  const table = document.getElementById(tableId);
+  const tbody = table.querySelector('tbody');
+  const colCount = colLabels.length;
+
+  const tr = document.createElement('tr');
+  tr.classList.add('new-row');
+
+  for (let i = 0; i < colCount; i++) {
+    const td = document.createElement('td');
+    td.contentEditable = 'true';
+    td.setAttribute('placeholder', colLabels[i]);
+    if (i === 0) {
+      td.style.fontFamily = "'Consolas','Courier New',monospace";
+      td.style.color = 'var(--cmd)';
+      td.style.fontSize = '.8rem';
+    } else if (i === colCount - 1 && colCount === 3) {
+      td.classList.add('notes');
+    } else {
+      td.classList.add('desc');
+    }
+    td.addEventListener('keydown', e => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const cells = Array.from(tr.querySelectorAll('[contenteditable]'));
+        const idx = cells.indexOf(e.target);
+        if (idx < cells.length - 1) cells[idx + 1].focus();
+        else cells[0].focus();
+      }
+      if (e.key === 'Enter') { e.preventDefault(); }
+    });
+    tr.appendChild(td);
+  }
+
+  // delete cell
+  const delTd = document.createElement('td');
+  delTd.className = 'del-cell';
+  const btn = document.createElement('button');
+  btn.className = 'del-btn';
+  btn.title = 'Delete row';
+  btn.textContent = '✕';
+  btn.onclick = () => delRow(btn);
+  delTd.appendChild(btn);
+  tr.appendChild(delTd);
+
+  tbody.appendChild(tr);
+
+  // focus first cell
+  tr.querySelector('[contenteditable]').focus();
+}
+
+function delRow(btn) {
+  const row = btn.closest('tr');
+  row.style.transition = 'opacity .2s';
+  row.style.opacity = '0';
+  setTimeout(() => row.remove(), 200);
+}
+
+// ── EXPORT ──────────────────────────────────────────────────────────────────
+function exportData() {
+  const data = {};
+  document.querySelectorAll('table[id]').forEach(table => {
+    const id = table.id;
+    const headers = Array.from(table.querySelectorAll('thead th'))
+      .map(th => th.textContent.trim())
+      .filter(h => h); // drop the empty delete-column header
+    const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
+      return Array.from(tr.querySelectorAll('td:not(.del-cell)'))
+        .map(td => td.textContent.trim());
+    });
+    data[id] = { headers, rows };
+  });
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'linux-command-reference.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ Exported successfully');
+}
+
+// ── IMPORT ──────────────────────────────────────────────────────────────────
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      let restored = 0;
+      for (const [id, { rows }] of Object.entries(data)) {
+        const table = document.getElementById(id);
+        if (!table) continue;
+        const tbody = table.querySelector('tbody');
+        // figure out column count from existing header (minus del col)
+        const colCount = table.querySelectorAll('thead th').length - 1;
+        // clear existing rows and rebuild
+        tbody.innerHTML = '';
+        rows.forEach(cells => {
+          const tr = document.createElement('tr');
+          cells.slice(0, colCount).forEach((val, i) => {
+            const td = document.createElement('td');
+            td.textContent = val;
+            if (i === 0) {
+              td.style.fontFamily = "'Consolas','Courier New',monospace";
+              td.style.color = 'var(--cmd)';
+              td.style.fontSize = '.8rem';
+            } else if (i === colCount - 1 && colCount === 3) {
+              td.classList.add('notes');
+            } else {
+              td.classList.add('desc');
+            }
+            tr.appendChild(td);
+          });
+          // del cell
+          const delTd = document.createElement('td');
+          delTd.className = 'del-cell';
+          const btn = document.createElement('button');
+          btn.className = 'del-btn';
+          btn.title = 'Delete row';
+          btn.textContent = '✕';
+          btn.onclick = () => delRow(btn);
+          delTd.appendChild(btn);
+          tr.appendChild(delTd);
+          tbody.appendChild(tr);
+        });
+        restored++;
+      }
+      showToast(`✓ Imported ${restored} tables`);
+    } catch {
+      showToast('✗ Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
+  // reset so same file can be re-imported
+  event.target.value = '';
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// placeholder styling
+document.addEventListener('focus', e => {
+  if (e.target.contentEditable === 'true') {
+    e.target.classList.add('editing');
+  }
+}, true);
+document.addEventListener('blur', e => {
+  if (e.target.contentEditable === 'true') {
+    e.target.classList.remove('editing');
+  }
+}, true);
+</script>
+</body>
+</html>
