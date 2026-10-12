@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Auth for Beginners</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d23;--mu:#5d6675;--bd:#dde1e7;--ac:#2563eb;--ok:#16a34a;--no:#dc2626;--wn:#d97706;--code:#eef1f5;--okb:#e8f6ed;--nob:#fdeaea;--wnb:#fef3e0;--bt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1216;--card:#181c22;--tx:#e8eaee;--mu:#98a1b0;--bd:#2a303a;--ac:#5b8cff;--ok:#4ade80;--no:#f87171;--wn:#fbbf24;--code:#222831;--okb:#12261a;--nob:#2b1717;--wnb:#2b2212;--bt:#0f1216}}
+:root[data-theme="dark"]{--bg:#0f1216;--card:#181c22;--tx:#e8eaee;--mu:#98a1b0;--bd:#2a303a;--ac:#5b8cff;--ok:#4ade80;--no:#f87171;--wn:#fbbf24;--code:#222831;--okb:#12261a;--nob:#2b1717;--wnb:#2b2212;--bt:#0f1216}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit;padding:10px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);min-height:42px;margin:0 6px 8px 0}
+input[type=checkbox]{min-height:0;width:18px;height:18px;padding:0;margin:0 4px 0 0;vertical-align:middle}
+label{margin-right:10px;display:inline-block;margin-bottom:8px}
+button{cursor:pointer}button:hover{border-color:var(--ac)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn{background:var(--ac);color:#fff;border:0;font-weight:600}.btn:disabled{opacity:.4;cursor:default}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd)}
+.hd{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px}
+.hd button{margin:0;min-height:34px;padding:4px 10px;font-size:13px}
+.brand{font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--ac)}
+.pg{flex:1;display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:6px;background:var(--code);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+#cnt{font:600 14px ui-monospace,Menlo,Consolas,monospace;color:var(--mu)}
+.app{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:230px 1fr;align-items:start}
+nav{position:sticky;top:64px;padding:16px;border-right:1px solid var(--bd)}
+nav h3{margin:0 0 8px;font-size:.8rem;color:var(--mu);font-weight:600}
+nav button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;padding:7px 10px;min-height:0;margin:0;color:var(--mu);font-size:.9rem}
+nav button b{width:16px;text-align:center}
+nav button.cur{background:var(--code);color:var(--tx);font-weight:600}nav button.vis b{color:var(--ok)}
+main{padding:24px 24px 100px;min-width:0}
+section{display:none}section.on{display:block;animation:fi .25s}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+h1{font-size:2.6rem;line-height:1.1;margin:0 0 10px;letter-spacing:-.02em}
+h2{margin:0;font-size:1.7rem;letter-spacing:-.01em}
+.tag{font:600 13px ui-monospace,Menlo,Consolas,monospace;color:var(--ac)}
+.one{color:var(--mu);margin:4px 0 4px;font-size:1.05rem}.an{color:var(--mu);margin:0 0 16px;font-size:.92rem}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.panel>h4{margin:0 0 10px;font-size:.95rem}
+.out{margin-top:6px;padding:10px 14px;border:1px solid var(--bd);border-left:4px solid var(--bd);border-radius:8px;background:var(--code);font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;min-height:44px;transition:background .2s}
+.out[data-s]::before{display:block;margin-bottom:4px;font-weight:700;font-size:11px}
+.out[data-s=ok]{border-left-color:var(--ok);background:var(--okb)}.out[data-s=ok]::before{content:"\25CF ALLOWED";color:var(--ok)}
+.out[data-s=no]{border-left-color:var(--no);background:var(--nob)}.out[data-s=no]::before{content:"\25CF DENIED";color:var(--no)}
+.out[data-s=wn]{border-left-color:var(--wn);background:var(--wnb)}.out[data-s=wn]::before{content:"\25CF WARNING";color:var(--wn)}
+details.lm{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-bottom:16px}
+details.lm>summary{cursor:pointer;padding:14px 18px;font-weight:600;color:var(--ac);list-style:none}
+details.lm>summary::after{content:"+";float:right}details.lm[open]>summary::after{content:"\2212"}
+.lmb{padding:0 18px 18px;animation:fi .2s}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px}
+.cell{border:1px solid var(--bd);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.cell b{display:block;font-size:.8rem;color:var(--mu);margin-bottom:2px}.cell span{font-size:.92rem}
+.lmb h5{margin:16px 0 6px;font-size:.85rem;color:var(--mu)}
+.ed{background:#0d1117;border-radius:10px;overflow:hidden;color:#e6edf3}
+.edh{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #30363d;font:12px ui-monospace,Menlo,Consolas,monospace;color:#8b949e}
+.edh button{min-height:30px;padding:2px 10px;margin:0;background:#21262d;color:#e6edf3;border:1px solid #30363d;font-size:12px}
+.cd{overflow-x:auto;padding:10px 0;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.cl{display:flex;white-space:pre;padding-right:14px}
+.ln{width:36px;flex:none;text-align:right;padding-right:12px;color:#6e7681;user-select:none}
+.c{color:#8b949e}.s{color:#a5d6ff}.k{color:#ff7b72}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.flow i{font-style:normal;color:var(--mu)}
+.nd{display:inline-block;border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:5px 10px;font:600 12px ui-monospace,Menlo,Consolas,monospace}
+.nd.ck{border-color:var(--ac);color:var(--ac)}
+.nd em{font-style:normal;color:var(--ac);margin-right:6px}
+pre{background:var(--code);border-radius:8px;padding:10px;margin:8px 0 0;overflow-x:auto;font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:0}.chk input{margin-top:3px}
+.chk.done span{text-decoration:line-through;color:var(--mu)}
+.logt{max-height:240px;overflow:auto;border:1px solid var(--bd);border-radius:8px;font:13px ui-monospace,Menlo,Consolas,monospace}
+.lr{display:grid;grid-template-columns:80px 1fr 90px;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bd);align-items:center;min-width:360px;word-break:break-word}
+.lr.lh{position:sticky;top:0;background:var(--code);color:var(--mu);font-weight:600;font-size:11px}
+.bd{display:inline-block;padding:1px 10px;border-radius:99px;font:700 12px ui-monospace,Menlo,Consolas,monospace;color:var(--bt)}
+.bd.ok{background:var(--ok)}.bd.no{background:var(--no)}.bd.wn{background:var(--wn)}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:start;margin-bottom:24px}
+.stack{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.stack button{text-align:left;font-size:.9rem;padding:7px 12px;min-height:0;margin:0}
+.core{margin-top:4px;text-align:center;background:var(--code);border-radius:8px;padding:8px;font:600 13px ui-monospace,Menlo,Consolas,monospace}
+.fd{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.fd .top{border-color:var(--ac);background:var(--ac);color:#fff}.fd .top b{color:#fff}.fd .top span{color:#dbe6ff}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.fi{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;gap:8px}.fi button{margin:0}
+@media(max-width:820px){
+.app{grid-template-columns:1fr}
+nav{position:static;display:flex;gap:4px;overflow-x:auto;padding:8px;border:0;border-bottom:1px solid var(--bd);white-space:nowrap}
+nav h3{display:none}nav button{width:auto;flex:none}
+main{padding:16px 14px 100px}h1{font-size:2rem}.hero{grid-template-columns:1fr}
+.panel button,.panel input:not([type=checkbox]){width:100%;margin-right:0}
+.brand span{display:none}.fi button{flex:1}
+}
+</style></head><body>
+<header><div class="hd"><div class="brand"><i></i><span>Auth for Beginners</span></div><div class="pg"><div class="bar"><i id="pb"></i></div><div id="cnt">00 / 12</div></div><button id="th">Light/Dark</button></div></header>
+<div class="app"><nav id="nav"></nav><main id="main"></main></div>
+<div class="foot"><div class="fi"><button id="pv" onclick="go(cur-1)">&larr; Previous</button><button class="btn" id="nx" onclick="go(cur+1)">Next &rarr;</button></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const logs=[];
+const lst=m=>/401|403|INVALID|Denied|denied|blocked|wrong|fails|revoked|expired|Do step|No /i.test(m)?['no','DENIED']:/ATTACK|WINS|tampered|planted|denylisted/i.test(m)?['wn','WARNING']:['ok','ALLOWED'];
+function log(m){logs.unshift({t:new Date().toLocaleTimeString([],{hour12:false}),m,s:lst(m)});rl()}
+function rl(){const e=$("log");if(!e)return;e.innerHTML='<div class="lr lh"><span>TIME</span><span>EVENT</span><span>RESULT</span></div>'+(logs.length?logs.map(l=>`<div class="lr"><span>${l.t}</span><span>${esc(l.m)}</span><span class="bd ${l.s[0]}">${l.s[1]}</span></div>`).join(''):'<div class="lr"><span></span><span>No events yet. Try a demo.</span></div>')}
+$("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme==="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=d?"light":"dark"};
+const B=(el,t,f)=>{const b=document.createElement("button");b.textContent=t;b.onclick=f;el.appendChild(b);return b};
+const O=el=>{const o=document.createElement("div");o.className="out";o.textContent="Click a button.";el.appendChild(o);return o};
+const CK=(el,t,v)=>{const l=document.createElement("label"),c=document.createElement("input");c.type="checkbox";c.checked=!!v;l.appendChild(c);l.append(" "+t);el.appendChild(l);return c};
+const IN=(el,v,w)=>{const i=document.createElement("input");i.value=v;if(w)i.style.width=w;el.appendChild(i);return i};
+const b64=s=>btoa(s).replace(/=+$/,"").replace(/\+/g,"-").replace(/\//g,"_"),unb=s=>atob(s.replace(/-/g,"+").replace(/_/g,"/"));
+const sig=s=>{let h=5381;for(const c of s+"secret")h=(h*33+c.charCodeAt(0))>>>0;return h.toString(36)};
+const rid=()=>Math.random().toString(36).slice(2,8);
+async function sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}
+
+function d1(el){let sess={},ck=null;const o=O(el),r=m=>o.textContent=`Browser cookie: ${ck||"none"}\nServer sessions: ${JSON.stringify(sess)}\n${m}`;
+ B(el,"Login",()=>{const id="sess_"+rid();sess[id]="ana";ck=id;r("Server made a session, browser stored the cookie.");log("Cookie: login "+id)});
+ B(el,"Request /profile",()=>{const u=ck&&sess[ck];r(u?`200: Hello ${u} (cookie sent automatically)`:"401: no valid session");log("Cookie: request "+(u?"ok":"401"))});
+ B(el,"Delete cookie",()=>{ck=null;r("Browser forgot you.");log("Cookie: deleted")});B(el,"Server clears sessions",()=>{sess={};r("Server forgot you.");log("Cookie: server cleared")});r("")}
+function d2(el){const n=IN(el,"ana","90px"),o=O(el);let tok="";
+ const mk=()=>{const h=b64('{"alg":"HS256"}'),p=b64(JSON.stringify({user:n.value,role:"user"}));return`${h}.${p}.${sig(h+"."+p)}`};
+ const ver=t=>{const[h,p,s]=t.split(".");return sig(h+"."+p)===s};
+ const show=m=>{const p=tok.split(".");let pl="";try{pl=unb(p[1])}catch(e){pl="(unreadable)"}o.textContent=`Token:\n${tok}\nPayload (anyone can read): ${pl}\n${m}`};
+ B(el,"Create token",()=>{tok=mk();show("Signature OK");log("JWT: created")});
+ B(el,"Tamper: role=admin",()=>{if(!tok)return;const p=tok.split(".");tok=`${p[0]}.${b64(JSON.stringify({user:n.value,role:"admin"}))}.${p[2]}`;show("Edited the payload, kept old signature");log("JWT: tampered")});
+ B(el,"Verify",()=>{if(!tok)return;const ok=ver(tok);show(ok?"VALID":"INVALID: signature doesn't match, rejected");log("JWT verify: "+(ok?"valid":"INVALID"))})}
+function d3(el){let exp=0;const o=O(el);o.textContent="No token.";
+ setInterval(()=>{if(exp&&Date.now()<exp)o.textContent=`Access token valid for ${((exp-Date.now())/1000).toFixed(0)}s more`;else if(exp)o.textContent="Access token EXPIRED"},500);
+ B(el,"Get token (10s life)",()=>{exp=Date.now()+10000;log("AccessToken: issued 10s")});
+ B(el,"Call API",()=>{const ok=Date.now()<exp;o.textContent=ok?"200 OK":"401 Unauthorized, token expired or missing";log("AccessToken: API "+(ok?"200":"401"))})}
+function d4(el){let acc=0,ref=false;const o=O(el),r=m=>o.textContent=`Access token: ${Date.now()<acc?"valid":"expired/none"}   Refresh token: ${ref?"stored (long life)":"none"}\n${m}`;
+ B(el,"Login",()=>{acc=Date.now()+6000;ref=true;r("Got both. Access lasts 6s.");log("Refresh: login")});
+ B(el,"Call API",()=>{const ok=Date.now()<acc;r(ok?"200 OK":"401: access token expired");log("Refresh: API "+(ok?"200":"401"))});
+ B(el,"Use refresh token",()=>{if(!ref){r("No refresh token, must login again");return}acc=Date.now()+6000;r("New access token issued silently, no password needed.");log("Refresh: renewed")});
+ B(el,"Logout",()=>{acc=0;ref=false;r("Both discarded");log("Refresh: logout")});r("")}
+function d5(el){let s=0;const o=O(el),sc=CK(el,"allow 'read email'",true),steps=["1. App redirects you to the provider (Google).","2. You log in THERE and approve permissions.","3. Provider sends the app a one-time code.","4. App swaps the code for an access token (server side).","5. App calls the API with the token. Done. App never saw your password."];
+ B(el,"Next step",()=>{if(s>=steps.length)s=0;o.textContent=steps.slice(0,s+1).join("\n")+(s===1?`\nYou approved: ${sc.checked?"read email":"nothing"}`:"");log("OAuth: step "+(s+1));s++});B(el,"Reset",()=>{s=0;o.textContent="Reset.";log("OAuth: reset")})}
+function d6(el){const o=O(el);
+ B(el,"Get access token (OAuth)",()=>{o.textContent='{ "scope": "read:email", "exp": "1h" }\nSays what the app MAY DO. Not who you are.';log("OIDC: access token")});
+ B(el,"Get ID token (OIDC)",()=>{o.textContent='{ "sub": "123", "name": "Ana", "email": "ana@x.com" }\nSays WHO you are. Used to log in.';log("OIDC: id token")})}
+function d7(el){const p=IN(el,"hunter2","110px"),salt=CK(el,"add random salt",false),o=O(el);
+ B(el,"Hash same password for 2 users",async()=>{const sa=salt.checked?rid():"",sb=salt.checked?rid():"",a=await sha(sa+p.value),b=await sha(sb+p.value);o.textContent=`User A: ${a.slice(0,32)}...\nUser B: ${b.slice(0,32)}...\n${a===b?"Same! Attackers see who shares passwords.":"Different, thanks to salt."}`;log("Hash: salt "+salt.checked+", "+(a===b?"identical":"different"))})}
+function d8(el){let ok1=false;const code=()=>String(((Math.floor(Date.now()/10000)*9301+49297)%233280)*4+100000).slice(0,6),o=O(el),i=IN(el,"","90px");i.placeholder="6-digit code";
+ const sh=()=>{o.textContent=`Authenticator app shows: ${code()}  (changes every 10s)\nStep 1 password: ${ok1?"done":"not yet"}`};setInterval(sh,1000);
+ B(el,"Step 1: password",()=>{ok1=true;sh();log("MFA: password ok")});
+ B(el,"Step 2: submit code",()=>{if(!ok1){o.textContent="Do step 1 first.";return}const ok=i.value===code();o.textContent=ok?"Logged in! Both factors passed.":"Wrong or expired code. Denied.";log("MFA: code "+(ok?"ok":"wrong"))});sh()}
+function d9(el){const R={viewer:["read"],editor:["read","edit"],admin:["read","edit","delete"]};let role="viewer";const o=O(el);o.textContent="Role: viewer";
+ Object.keys(R).forEach(r=>B(el,"Be "+r,()=>{role=r;o.textContent=`Role: ${role} can: ${R[role].join(", ")}`;log("RBAC: role "+r)}));
+ ["read","edit","delete"].forEach(a=>B(el,"Try "+a,()=>{const ok=R[role].includes(a);o.textContent=`${role} tries ${a}: ${ok?"ALLOWED":"403 Forbidden"}`;log(`RBAC: ${role} ${a} ${ok?"ok":"403"}`)}))}
+function d10(el){let t=null;const deny=new Set(),chk=CK(el,"server checks denylist",true),o=O(el);
+ B(el,"Login (get token)",()=>{t="jwt_"+rid();o.textContent="Token: "+t;log("Revoke: token issued")});
+ B(el,"Use token",()=>{if(!t){o.textContent="No token";return}const bad=chk.checked&&deny.has(t);o.textContent=bad?"401: token revoked":"200 OK, token still accepted"+(deny.has(t)?"\n(it was revoked, but nobody checked!)":"");log("Revoke: use "+(bad?"401":"200"))});
+ B(el,"Logout (revoke)",()=>{if(t)deny.add(t);o.textContent="Token added to denylist.";log("Revoke: denylisted")})}
+function d11(el){let bal=100;const need=CK(el,"server requires CSRF token",true),o=O(el);o.textContent="Balance: $100";
+ B(el,"Transfer $50 on real bank site",()=>{bal-=50;o.textContent=`Real form includes the secret token. Sent OK.\nBalance: $${bal}`;log("CSRF: real transfer")});
+ B(el,"Evil site sends hidden transfer",()=>{if(need.checked){o.textContent=`Evil form has your cookie but NOT the token. 403 blocked.\nBalance: $${bal}`;log("CSRF: attack blocked")}else{bal-=50;o.textContent=`Browser attached your cookie, bank trusted it!\nBalance: $${bal}  (attack worked)`;log("CSRF: ATTACK worked")}});
+ B(el,"Reset",()=>{bal=100;o.textContent="Balance: $100"})}
+function d12(el){let planted=null,victim=null;const reg=CK(el,"regenerate session ID on login",false),o=O(el),r=m=>o.textContent=`Planted ID: ${planted||"-"}   Victim's session ID: ${victim||"-"}\n${m}`;
+ B(el,"1 Attacker plants ID 'abc'",()=>{planted="abc";victim="abc";r("Victim's browser now uses session 'abc'.");log("Fixation: planted abc")});
+ B(el,"2 Victim logs in",()=>{if(!planted){r("Do step 1");return}if(reg.checked)victim="new_"+rid();r(reg.checked?"Server issued a NEW ID at login. 'abc' is useless.":"Server kept 'abc' and attached the login to it.");log("Fixation: victim login")});
+ B(el,"3 Attacker uses 'abc'",()=>{r(victim==="abc"?"ATTACKER IS LOGGED IN AS VICTIM!":"401: 'abc' is not a logged-in session");log("Fixation: attacker "+(victim==="abc"?"WINS":"fails"))});B(el,"Reset",()=>{planted=victim=null;r("")});r("")}
+
+const FOUND=["Authentication (AuthN): proving who you are.","Authorization (AuthZ): what you're allowed to do.","Token: a small proof you carry.","Session: server memory of your login.","Cookie: small data the browser stores and sends.","Hash: one-way scramble of data.","Claim: a fact inside a token (user, role)."];
+const C=[
+["Session Cookie","Server remembers you; browser carries only an ID.","A coat-check ticket.",d1,"A cookie holding a session ID.","HTTP forgets users between requests.","Staying logged in.",["Login","Server stores session","Browser stores cookie ID","Cookie sent each request"],"Traditional websites.","Most server-rendered sites.","res.cookie('sid', id, { httpOnly:true, secure:true });","Use HttpOnly, Secure, SameSite flags.","Browser <-cookie id-> Server[sessions]","Putting passwords or data in the cookie.","Login, delete cookie, request again."],
+["JWT","A signed token that carries your info.","A signed concert wristband.",d2,"JSON Web Token: header.payload.signature.","Servers can verify without a lookup.","Needing a session store.",["Server signs payload","Client keeps token","Server checks signature"],"APIs, mobile apps.","Login APIs.","jwt.sign({ sub: id }, SECRET, { expiresIn:'15m' });","Anyone can READ it, never put secrets inside.","header . payload . signature","Storing secrets in the payload.","Tamper the role, then verify."],
+["Access Token","A short-lived key to call the API.","A day pass at a theme park.",d3,"A token proving you may access the API.","Short life limits damage if stolen.","Stolen tokens working forever.",["Login gives token","Send in header","Expires soon"],"Every API call.","Authorization: Bearer ...","fetch(url,{headers:{Authorization:'Bearer '+t}});","Keep life to 5-15 minutes.","Client -(Bearer)-> API","Making tokens last for months.","Wait 10s, call again."],
+["Refresh Token","A long-lived key used to get new access tokens.","A season pass you swap for day passes.",d4,"A token used only to renew access.","Users shouldn't log in every 10 minutes.","Annoying re-logins with short tokens.",["Access expires","Send refresh token","Get new access token"],"Apps that stay logged in.","Mobile apps.","POST /token { refresh_token }","Rotate refresh tokens and store them safely.","[expired] -refresh-> [new access]","Storing it in localStorage.","Let it expire, then refresh."],
+["OAuth 2.0","Let an app access your data without your password.","A valet key: opens the car, not the glovebox.",d5,"A protocol for delegated access.","Sharing passwords is dangerous.","Apps asking for your password.",["Redirect to provider","User approves","Code returned","Swap code for token"],"'Connect with Google/GitHub'.","Apps reading your calendar.","redirect('https://provider/authorize?scope=read');","Use the PKCE flow for public apps.","App -> Provider -> code -> token","Using it as login (that's OIDC).","Step through, uncheck the scope."],
+["OIDC","OAuth plus an ID token that says who you are.","An ID card on top of the valet key.",d6,"OpenID Connect: login layer on OAuth.","OAuth alone doesn't tell who you are.","Knowing the user's identity.",["Do OAuth flow","Receive ID token","Read name and email claims"],"'Sign in with Google'.","Google login.","scope='openid email profile'","Verify the ID token signature and audience.","OAuth(access) + ID token(who)","Using the access token as identity proof.","Compare the two tokens."],
+["Password Hash","Store a scrambled password, never the real one.","A meat grinder: can't un-grind it.",d7,"A one-way function of the password.","Leaks shouldn't expose passwords.","Plain-text passwords stolen.",["Add salt","Hash password","Store hash","Compare hashes at login"],"Every login system.","Bcrypt in most apps.","hash = await bcrypt.hash(pw, 12);","Use bcrypt/argon2, not fast hashes like SHA-256.","pw + salt -> [hash] (one way)","Skipping salt or using MD5.","Same password, salt on and off."],
+["MFA","Prove yourself with two or more factors.","A bank card plus a PIN.",d8,"Multi-factor: know, have, are.","Passwords get stolen.","Account takeover from leaked passwords.",["Enter password","Enter code from device","Both pass: logged in"],"Banking, email, admin.","Authenticator apps.","verifyTotp(secret, code);","Give users backup codes.","password + code = in","Allowing SMS-only for high-risk accounts.","Wait for the code to change."],
+["RBAC","Permissions depend on your role.","Staff badges: guest, staff, manager.",d9,"Role-Based Access Control.","Per-user rules don't scale.","Messy permissions.",["Assign role","Role holds permissions","Check on each action"],"Admin panels, teams.","Viewer, editor, admin.","if (!roles[user.role].includes(action)) return 403;","Check on the server, not only the UI.","user -> role -> permissions","Hiding buttons but not blocking the API.","Try delete as each role."],
+["Token Revocation","Cancel a token before it expires.","Cancelling a lost credit card.",d10,"Invalidating a token early.","Tokens stay valid until expiry.","Stolen or logged-out tokens still working.",["Logout or alert","Add token ID to denylist","Check list on each request"],"Logout, password change.","Redis denylist.","if (deny.has(jti)) return 401;","Keep access tokens short to shrink the denylist.","token -> [denylist?] -> 401","Logout that only deletes the client copy.","Revoke with the check off."],
+["CSRF Token","A secret that proves the request came from your own page.","A secret handshake only your site knows.",d11,"A random value tied to the session, sent with forms.","Browsers attach cookies automatically.","Evil sites making actions as you.",["Server gives token","Form includes it","Server checks match"],"Cookie-based sites.","Bank forms.","if (req.body._csrf !== session.csrf) return 403;","Also set SameSite cookies.","Evil site -x-> (no token) -> blocked","Using the same token for everyone.","Run the attack with protection off."],
+["Session Fixation","Attacker forces a known session ID on you.","Someone gives you a pre-keyed hotel card.",d12,"Attack that plants a session ID.","Servers reusing IDs across login.","Attackers hijacking a login.",["Attacker plants ID","Victim logs in","Attacker uses same ID"],"Fix at every login.","Old sites accepting ?sid= in URLs.","req.session.regenerate(cb);","Regenerate ID at login and privilege change.","atk plants abc -> victim logs in -> atk uses abc","Keeping the same ID after login.","Run all 3 steps with regenerate on."]
+];
+const N=C.length,pad=n=>String(n).padStart(2,'0');
+const hl=s=>{let o='',l=0,m;const r=/(\/\/.*)|('[^']*'|"[^"]*")|\b(const|function|return|if|await)\b/g;while(m=r.exec(s)){o+=esc(s.slice(l,m.index))+`<span class="${m[1]?'c':m[2]?'s':'k'}">${esc(m[0])}</span>`;l=r.lastIndex}return o+esc(s.slice(l))};
+const stOf=t=>/401|403|INVALID|Denied|blocked|expired|Wrong|revoked|not a logged|not yet|^Do step|No token/i.test(t)?'no':/worked|LOGGED IN AS VICTIM|still accepted|Same!|tampered|planted|Edited the payload/i.test(t)?'wn':/200|VALID|OK|Logged in|Different|issued|renewed|stored|Hello/i.test(t)?'ok':'';
+let cur=-1;const vis=new Set(),mn=$("main");
+let h=`<section id="s-1"><div class="hero"><div><div class="tag">INTERACTIVE COURSE</div><h1>Auth for Beginners</h1><p class="one">Learn how apps know who you are, and what you may do.</p><p class="an">${N} topics, one at a time. Learn the idea, try the demo, read the code, finish the exercise.</p><button class="btn" onclick="go(0)">Start learning &rarr;</button></div><div class="panel"><h4>The ${N} topics</h4><div class="stack">${C.map((c,i)=>`<button onclick="go(${i})"><b>${pad(i+1)}</b> ${c[0]}</button>`).join('')}</div><div class="core">SECURE LOGIN</div></div></div>
+<div class="panel"><h4>Foundations</h4><div class="fd">${FOUND.map((f,i)=>{const[a,b]=f.split(/:(.*)/);return`<div class="cell ${i<2?'top':''}"><b>${a}</b><span>${b.trim()}</span></div>`}).join('')}</div></div></section>`;
+C.forEach((c,i)=>{
+ const cells=[["What is it?",c[4]],["Why does it exist?",c[5]],["Problem it solves",c[6]],["When it's used",c[8]],["Real-world example",c[9]],["Production note",c[11]],["Common mistakes",c[13]]];
+ h+=`<section id="s${i}"><div class="tag">${pad(i+1)}</div><h2>${c[0]}</h2><p class="one">${esc(c[1])}</p><p class="an">Like: ${esc(c[2])}</p>
+<div class="panel demo" id="d${i}"><h4>Try it</h4></div>
+<div class="panel"><h4>How it works</h4><div class="flow">${c[7].map((x,j)=>`${j?'<i>&rarr;</i>':''}<span class="nd"><em>${j+1}</em>${esc(x)}</span>`).join('')}</div></div>
+<details class="lm"><summary>Learn more</summary><div class="lmb"><div class="grid">${cells.map(x=>`<div class="cell"><b>${x[0]}</b><span>${esc(x[1])}</span></div>`).join('')}</div>
+<h5>Diagram</h5><pre>${esc(c[12])}</pre>
+<h5>Code example</h5><div class="ed"><div class="edh"><span>example.js</span><button onclick="cp(${i},this)">Copy code</button></div><div class="cd"><div class="cl"><span class="ln">01</span><span>${hl(c[10])}</span></div></div></div></div></details>
+<div class="panel"><h4>Try it yourself</h4><label class="chk"><input type="checkbox" onchange="this.parentNode.classList.toggle('done',this.checked)"><span>${esc(c[14])}</span></label></div></section>`});
+h+=`<div class="panel"><h4>Live log</h4><div style="margin-bottom:8px"><button onclick="logs.length=0;rl()">Clear log</button></div><div class="logt" id="log"></div></div>`;
+mn.innerHTML=h;
+C.forEach((c,i)=>{const d=$("d"+i);c[3](d);const o=d.querySelector(".out");
+ new MutationObserver(()=>{const s=stOf(o.textContent);s?o.dataset.s=s:delete o.dataset.s}).observe(o,{childList:true,characterData:true,subtree:true});
+ d.addEventListener("click",e=>{if(e.target.closest("button")){vis.add(i);nav()}})});
+rl();
+function cp(i,b){const t=C[i][10],ok=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy code",1500)};
+ const fb=()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){}a.remove()};
+ try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
+function nav(){
+ $("nav").innerHTML='<h3>AUTH FOR BEGINNERS</h3>'+`<button class="${cur<0?'cur':''}" onclick="go(-1)"><b>&#9679;</b>Overview</button>`+C.map((c,i)=>`<button class="${i===cur?'cur':''} ${vis.has(i)?'vis':''}" onclick="go(${i})"><b>${i===cur?'&rarr;':vis.has(i)?'&#10003;':'&#9675;'}</b>${pad(i+1)} ${c[0]}</button>`).join('');
+ const e=$("nav").querySelector(".cur");if(e&&e.scrollIntoView)e.scrollIntoView({block:"nearest",inline:"center"})}
+function go(i){
+ if(i<-1||i>=N)return;cur=i;
+ document.querySelectorAll("section").forEach(s=>s.classList.remove("on"));$("s"+i).classList.add("on");
+ $("cnt").textContent=(i<0?"00":pad(i+1))+" / "+N;$("pb").style.width=((i+1)/N*100)+"%";
+ $("pv").disabled=i<0;$("nx").disabled=i>=N-1;nav();window.scrollTo(0,0)}
+document.addEventListener("keydown",e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==="ArrowRight")go(cur+1);else if(e.key==="ArrowLeft")go(cur-1)});
+go(-1);
+</script></body></html>

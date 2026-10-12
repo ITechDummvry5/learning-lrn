@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>12 - API Security</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d23;--mu:#5d6675;--bd:#dde1e7;--ac:#2563eb;--ok:#16a34a;--no:#dc2626;--wn:#d97706;--code:#eef1f5;--okb:#e8f6ed;--nob:#fdeaea;--wnb:#fef3e0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1216;--card:#181c22;--tx:#e8eaee;--mu:#98a1b0;--bd:#2a303a;--ac:#5b8cff;--ok:#4ade80;--no:#f87171;--wn:#fbbf24;--code:#222831;--okb:#12261a;--nob:#2b1717;--wnb:#2b2212}}
+:root[data-theme="dark"]{--bg:#0f1216;--card:#181c22;--tx:#e8eaee;--mu:#98a1b0;--bd:#2a303a;--ac:#5b8cff;--ok:#4ade80;--no:#f87171;--wn:#fbbf24;--code:#222831;--okb:#12261a;--nob:#2b1717;--wnb:#2b2212}
+*{box-sizing:border-box}
+html{height:100%}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit;padding:10px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);min-height:42px}
+button{cursor:pointer;transition:filter .15s}button:hover{filter:brightness(.95)}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn{background:var(--ac);color:#fff;border:0;font-weight:600}
+.btn.alt{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.btn:disabled{opacity:.4;cursor:default}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd)}
+.hd{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px}
+.brand{font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--ac)}
+.pg{flex:1;display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:6px;background:var(--code);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+#cnt{font:600 14px ui-monospace,Menlo,Consolas,monospace;color:var(--mu)}
+.app{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:230px 1fr;align-items:start}
+nav{position:sticky;top:64px;padding:16px;border-right:1px solid var(--bd);min-height:60vh}
+nav h3{margin:0 0 8px;font-size:.8rem;color:var(--mu);font-weight:600}
+nav button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:8px 10px;min-height:0;color:var(--mu);font-size:.92rem}
+nav button b{width:16px;text-align:center}
+nav button.cur{background:var(--code);color:var(--tx);font-weight:600}
+nav button.vis b{color:var(--ok)}
+main{padding:24px 24px 100px;min-width:0}
+section{display:none}section.on{display:block;animation:fi .25s}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+h1{font-size:2.6rem;line-height:1.1;margin:0 0 10px;letter-spacing:-.02em}
+h2{margin:0;font-size:1.7rem;letter-spacing:-.01em}
+.tag{font:600 13px ui-monospace,Menlo,Consolas,monospace;color:var(--ac)}
+.one{color:var(--mu);margin:4px 0 16px;font-size:1.05rem}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.panel>h4{margin:0 0 10px;font-size:.95rem}
+.hint{color:var(--mu);margin:0 0 12px;font-size:.95rem}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.cnt{font:600 15px ui-monospace,Menlo,Consolas,monospace}
+.meter{height:8px;background:var(--code);border-radius:9px;overflow:hidden;margin-bottom:12px}
+.meter i{display:block;height:100%;width:0;background:var(--ok);transition:width .25s,background .25s}
+.tok{background:var(--code);border-radius:8px;padding:10px;margin-bottom:12px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.ev{border:1px solid var(--bd);border-left-width:4px;border-radius:8px;padding:12px 14px;animation:fi .2s}
+.ev.ok{border-left-color:var(--ok);background:var(--okb)}.ev.no{border-left-color:var(--no);background:var(--nob)}.ev.wn{border-left-color:var(--wn);background:var(--wnb)}
+.evh{font:13px ui-monospace,Menlo,Consolas,monospace}
+.evg{display:flex;gap:32px;margin:8px 0;font:600 15px ui-monospace,Menlo,Consolas,monospace}
+.evg small{display:block;color:var(--mu);font-weight:500;font-size:11px}
+.ev p{margin:0;font-size:.92rem}
+.bd{display:inline-block;padding:1px 10px;border-radius:99px;font:700 12px ui-monospace,Menlo,Consolas,monospace;color:#fff}
+.bd.ok{background:var(--ok)}.bd.no{background:var(--no)}.bd.wn{background:var(--wn)}
+html[data-theme="dark"] .bd,html:not([data-theme="light"]) .bd{color:#0f1216}
+@media(prefers-color-scheme:light){html:not([data-theme="dark"]) .bd{color:#fff}}
+details.lm{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-bottom:16px}
+details.lm>summary{cursor:pointer;padding:14px 18px;font-weight:600;color:var(--ac);list-style:none}
+details.lm>summary::after{content:"+";float:right}details.lm[open]>summary::after{content:"\2212"}
+.lmb{padding:0 18px 18px;animation:fi .2s}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px}
+.cell{border:1px solid var(--bd);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.cell b{display:block;font-size:.8rem;color:var(--mu);margin-bottom:2px}
+.cell span{font-size:.92rem}
+.lmb h5{margin:16px 0 6px;font-size:.85rem;color:var(--mu)}
+.ed{background:#0d1117;border-radius:10px;overflow:hidden;color:#e6edf3}
+.edh{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #30363d;font:12px ui-monospace,Menlo,Consolas,monospace;color:#8b949e}
+.edh button{min-height:30px;padding:2px 10px;background:#21262d;color:#e6edf3;border:1px solid #30363d;font-size:12px}
+.cd{overflow-x:auto;padding:10px 0;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.cl{display:flex;white-space:pre;padding-right:14px}
+.ln{width:36px;flex:none;text-align:right;padding-right:12px;color:#6e7681;user-select:none}
+.c{color:#8b949e}.s{color:#a5d6ff}.k{color:#ff7b72}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.flow i{font-style:normal;color:var(--mu)}
+.nd{display:inline-block;border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:5px 10px;font:600 12px ui-monospace,Menlo,Consolas,monospace}
+.nd.ck{border-color:var(--ac);color:var(--ac)}.nd.ok{border-color:var(--ok);color:var(--ok)}.nd.no{border-color:var(--no);color:var(--no)}
+.fork{display:flex;flex-direction:column;gap:6px}.fork div{display:flex;align-items:center;gap:6px}
+pre{background:var(--code);border-radius:8px;padding:10px;margin:8px 0 0;overflow-x:auto;font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace}
+.chk{display:flex;gap:10px;align-items:flex-start}.chk input{min-height:0;width:20px;height:20px;margin-top:3px}
+.chk.done span{text-decoration:line-through;color:var(--mu)}
+.qb{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
+.qb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);text-align:left}
+.qb button.ok{background:var(--okb);border-color:var(--ok)}.qb button.no{background:var(--nob);border-color:var(--no)}
+.fb{margin:0;font-size:.92rem}
+.logt{max-height:300px;overflow:auto;border:1px solid var(--bd);border-radius:8px;font:13px ui-monospace,Menlo,Consolas,monospace}
+.lr{display:grid;grid-template-columns:80px 1fr 1.4fr 90px;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bd);align-items:center;min-width:420px}
+.lr.lh{position:sticky;top:0;background:var(--code);color:var(--mu);font-weight:600;font-size:11px}
+.lr:last-child{border:0}
+.lg{display:flex;flex-direction:column;align-items:center;gap:6px}
+.lg .nd{min-width:210px;text-align:center}
+.lg .top{background:var(--ac);color:#fff;border:0}
+.lg .mid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.lg .mid .nd{min-width:150px;font-family:inherit}
+.lg small{font:400 11px system-ui;color:var(--mu);display:block}
+.lg .top small{color:#dbe6ff}
+.stack{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.stack button{text-align:left;font-size:.9rem;padding:7px 12px;min-height:0}
+.core{margin-top:4px;text-align:center;background:var(--code);border-radius:8px;padding:8px;font:600 13px ui-monospace,Menlo,Consolas,monospace}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:start;margin-bottom:24px}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.fi{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;gap:8px}
+@media(max-width:820px){
+.app{grid-template-columns:1fr}
+nav{position:static;display:flex;gap:4px;overflow-x:auto;padding:8px;border:0;border-bottom:1px solid var(--bd);min-height:0;white-space:nowrap}
+nav h3{display:none}nav button{width:auto;flex:none}
+main{padding:16px 14px 100px}
+h1{font-size:2rem}.hero{grid-template-columns:1fr}
+.row>*{flex:1 1 100%}.row .cnt{flex:none}
+.brand span{display:none}
+.foot button{flex:1}
+}
+</style>
+</head>
+<body>
+<header><div class="hd"><div class="brand"><i></i><span>API Security</span></div><div class="pg"><div class="bar"><i id="pb"></i></div><div id="cnt">00 / 10</div></div></div></header>
+<div class="app">
+<nav id="nav"></nav>
+<main id="main"></main>
+</div>
+<div class="foot"><div class="fi"><button class="btn alt" id="pv" onclick="go(cur-1)">&larr; Previous</button><button class="btn" id="nx" onclick="go(cur+1)">Next &rarr;</button></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ST={ALLOWED:'ok',DENIED:'no',BLOCKED:'no',INVALID:'no',EXPIRED:'wn',WARNING:'wn'};
+const res=(id,m,p,status,state,msg)=>{$(id).innerHTML=`<div class="ev ${ST[state]}"><div class="evh">&#9679; REQUEST <b>${m} ${p}</b></div><div class="evg"><div><small>STATUS</small>${status}</div><div><small>SECURITY</small><span class="bd ${ST[state]}">${state}</span></div></div><p>${msg}</p></div>`;};
+const logs=[];
+function log(who,what,state){
+  logs.unshift({t:new Date().toLocaleTimeString([],{hour12:false}),who,what,state});renderLog();
+}
+function renderLog(){
+  const el=$('log');if(!el)return;
+  el.innerHTML='<div class="lr lh"><span>TIME</span><span>ACTOR</span><span>ACTION</span><span>RESULT</span></div>'+
+  (logs.length?logs.map(e=>`<div class="lr"><span>${e.t}</span><span>${esc(e.who)}</span><span>${esc(e.what)}</span><span><span class="bd ${ST[e.state]}">${e.state}</span></span></div>`).join(''):'<div class="lr"><span></span><span>No events yet. Try the other layers.</span></div>');
+}
+function clr(){logs.length=0;renderLog();}
+const done=i=>{const c=$('ex'+i);if(c){c.checked=true;c.parentNode.classList.add('done');}};
+// 1 rate limit
+let hits=[];
+function rl(){
+  const now=Date.now();hits=hits.filter(t=>now-t<10000);
+  if(hits.length>=5){res('rlo','GET','/data','429 Too Many Requests','DENIED','Wait a few seconds.');log('you','GET /data','DENIED');done(0);}
+  else{hits.push(now);res('rlo','GET','/data','200 OK','ALLOWED','Request accepted.');log('you','GET /data','ALLOWED');}
+  $('rlc').textContent=hits.length+' / 5';$('rlm').style.width=hits.length*20+'%';$('rlm').style.background=hits.length>=5?'var(--no)':hits.length>=4?'var(--wn)':'var(--ok)';
+}
+// 2 api key
+function ak(){
+  const k=$('key').value,ok=k==='abc123';
+  ok?res('ako','GET','/weather','200 OK','ALLOWED','Here is your data.'):res('ako','GET','/weather','401 Unauthorized','DENIED','Bad or missing key.');
+  log('key:'+(k||'none'),'GET /weather',ok?'ALLOWED':'DENIED');
+}
+// 3 oauth
+function oa(y){
+  if(!y){res('oao','POST','/oauth/consent','403 access_denied','DENIED','Access denied. App gets nothing.');log('oauth','read photos','DENIED');return;}
+  const tok='tmp_'+Math.random().toString(36).slice(2,10);
+  res('oao','GET','/photos','200 OK','ALLOWED','1. App redirects you to Google<br>2. You click Allow<br>3. Google gives a temporary token: <b>'+tok+'</b><br>4. App reads photos only. Not your password. Token expires.');
+  log('oauth','token '+tok+' scope:photos','ALLOWED');
+}
+// 4 jwt (toy hash, for learning only)
+const SECRET='server-secret';
+const hash=s=>{let h=5381;for(const c of s)h=((h<<5)+h+c.charCodeAt(0))>>>0;return h.toString(16);};
+let token=null;
+function jwtMake(){
+  const payload=btoa(JSON.stringify({user:'charles',role:'user',exp:Date.now()+60000}));
+  token={payload,sig:hash(payload+SECRET)};show();
+}
+function jwtTamper(){
+  if(!token)return;
+  const p=JSON.parse(atob(token.payload));p.role='admin';
+  token.payload=btoa(JSON.stringify(p));show();
+}
+function show(){$('jwt').innerHTML='payload: '+esc(atob(token.payload))+'<br>signature: '+token.sig;}
+function jwtCheck(){
+  if(!token){res('jwo','GET','/me','401 Unauthorized','DENIED','No token.');return;}
+  const p=JSON.parse(atob(token.payload));
+  if(hash(token.payload+SECRET)!==token.sig){res('jwo','GET','/me','401 Unauthorized','INVALID','Signature invalid. Token was tampered.');log('jwt','role='+p.role,'DENIED');done(3);}
+  else if(p.exp<Date.now()){res('jwo','GET','/me','401 Unauthorized','EXPIRED','Token expired.');log('jwt','expired','DENIED');}
+  else{res('jwo','GET','/me','200 OK','ALLOWED','Hello '+esc(p.user)+' ('+esc(p.role)+')');log('jwt','role='+p.role,'ALLOWED');}
+}
+// 5 sanitize
+function san(){
+  const v=$('inp').value,bad=/[<>]/.test(v);
+  res('sao','POST','/comment',bad?'200 OK (escaped)':'200 OK',bad?'WARNING':'ALLOWED','<b>Unsafe (raw, shown as text so this demo stays safe):</b> <span id="raw"></span><br><b>Safe (escaped):</b> '+esc(v));
+  $('raw').textContent=v;
+  log('you','input: '+v,bad?'DENIED':'ALLOWED');
+  if(bad)done(4);
+}
+// 6 cors
+function co(){
+  const o=$('org').value,ok=o==='mysite.com';
+  ok?res('coo','GET','/api','200 OK','ALLOWED','Access-Control-Allow-Origin: mysite.com. Browser allows it.'):res('coo','GET','/api','CORS error','BLOCKED','Browser refuses to give '+esc(o)+' the response.');
+  log('origin:'+o,'GET /api',ok?'ALLOWED':'DENIED');if(!ok)done(5);
+}
+// 7 mtls
+function mt(){
+  const s=$('sc').checked,c=$('cc').checked;
+  if(!s)res('mto','CONNECT','/tls','Handshake failed','BLOCKED','Client refuses: server has no cert.');
+  else if(!c)res('mto','CONNECT','/tls','Handshake failed','BLOCKED','Server refuses: client has no cert.');
+  else res('mto','CONNECT','/tls','Connected','ALLOWED','Both verified. Encrypted connection open.');
+  log('mtls','server:'+s+' client:'+c,s&&c?'ALLOWED':'DENIED');
+}
+// 8 signing
+function sg(t){
+  const a=$('amt').value,sig=hash('amount='+a+SECRET),got=t?'1000':a;
+  const ok=hash('amount='+got+SECRET)===sig;
+  res('sgo','POST','/pay',ok?'200 OK':'400 Bad Request',ok?'ALLOWED':'INVALID','Sent: amount='+esc(a)+', signature='+sig+'<br>Received: amount='+got+'<br>'+(ok?'Signature matches. Payment accepted.':'Signature mismatch. Request rejected.'));
+  log('payment','amount='+got,ok?'ALLOWED':'DENIED');if(!ok)done(7);
+}
+// 9 ip
+function ipa(){
+  const ip=$('ip').value,ok=ip==='10.0.0.5';
+  ok?res('ipo','GET','/admin','200 OK','ALLOWED','Welcome, office.'):res('ipo','GET','/admin','403 Forbidden','BLOCKED','IP '+esc(ip)+' not on the list.');
+  log('ip:'+ip,'GET /admin',ok?'ALLOWED':'DENIED');if(!ok)done(8);
+}
+
+const D=[
+{what:"A cap on requests per time window.",why:"Servers have limited capacity.",solves:"Brute-force logins, DoS, scraping, big bills.",how:"1) Identify client 2) Count requests 3) Under limit: allow 4) Over: 429.",when:"Every public API. Strictest on login/signup.",real:"Instagram locks you out after many wrong passwords.",code:"const rateLimit=require('express-rate-limit');\napp.use(rateLimit({windowMs:60000,max:5}));\n// prod: Redis store, tighter limit on /login",ascii:"req1-5 -> 200\nreq6   -> 429\nwait   -> 200",mist:"Limit by IP only. In-memory counters on many servers. Same limit everywhere.",ex:"Run the code, hit it 6 times, confirm the 6th is 429.",q:"Which status code means rate limit hit?",a:"429"},
+{what:"A secret string identifying the calling app.",why:"Server needs to know who is calling.",solves:"Anonymous abuse; lets you track and block one client.",how:"1) Issue key 2) Client sends header 3) Server checks 4) Match: allow.",when:"Server-to-server calls, public data APIs.",real:"Weather API asks for ?key=...",code:"app.use((req,res,next)=>{\n  if(req.get('x-api-key')!==process.env.API_KEY)\n    return res.sendStatus(401);\n  next();\n});\n// prod: store HASHED keys in a DB, one per client",ascii:"Client --x-api-key--> API --check--> data",mist:"Key in frontend JS or GitHub. No rotation. One key for everyone.",ex:"Add the middleware. Call with and without the header.",q:"Why never put an API key in browser JS?",a:"Anyone can view source and steal it."},
+{what:"A standard way to grant limited access without sharing your password.",why:"Apps shouldn't hold your Google password.",solves:"Password sharing; over-broad access.",how:"1) App redirects to provider 2) You click Allow 3) App gets a code 4) Swaps for token 5) Uses token.",when:"'Log in with Google/GitHub', third-party integrations.",real:"A photo app reading only your Google Photos.",code:"// call API with the token\nfetch('https://api.example.com/photos',\n {headers:{Authorization:'Bearer '+accessToken}});\n// prod: use a library, PKCE, short-lived tokens",ascii:"User -> App -> Google (Allow?)\nApp <- token <- Google\nApp --token--> API",mist:"Asking for too many scopes. Skipping state/PKCE. Long-lived tokens.",ex:"Read GitHub's OAuth docs and list the 4 steps in your words.",q:"What does the app receive instead of your password?",a:"A limited, temporary access token."},
+{what:"A signed token carrying user info that the server can verify.",why:"Server can trust a token without a DB lookup.",solves:"Fake identities and tampered claims.",how:"1) Login 2) Server signs token 3) Client sends it 4) Server checks signature + expiry.",when:"Stateless login for APIs and SPAs.",real:"A signed concert wristband.",code:"const jwt=require('jsonwebtoken');\nconst t=jwt.sign({id:1,role:'user'},SECRET,{expiresIn:'15m'});\ntry{ const u=jwt.verify(t,SECRET); }catch(e){/* 401 */}\n// prod: short expiry, refresh tokens, pin the algorithm",ascii:"header.payload.signature\nchange payload -> signature fails",mist:"Not checking expiry. Accepting alg:none. Secrets in code. Storing sensitive data in payload (it's readable).",ex:"Paste a JWT into jwt.io. Edit the payload and watch it break.",q:"Can users read a JWT payload?",a:"Yes. It's encoded, not encrypted. Never put secrets in it."},
+{what:"Checking and cleaning all incoming data.",why:"Users (and attackers) can send anything.",solves:"SQL injection, XSS, crashes from bad data.",how:"1) Define allowed shape 2) Validate 3) Reject or escape 4) Use safe queries.",when:"Every input: body, query, headers, files.",real:"Airport bag scanning.",code:"// BAD:  db.query(\"SELECT * FROM users WHERE id=\"+id)\n// GOOD: db.query('SELECT * FROM users WHERE id=?',[id]);\nif(typeof name!=='string'||name.length>50) return res.sendStatus(400);\n// prod: schema validator (zod/joi)",ascii:"input -> validate -> escape -> safe query",mist:"Trusting frontend validation only. Blacklisting instead of allowlisting. String-building SQL.",ex:"Type a <script> tag into demo 5. Note the escaped output.",q:"What is the safest way to put user input in SQL?",a:"Parameterized queries."},
+{what:"Browser rules for which websites may call your API.",why:"Stops random sites using your visitors' logins.",solves:"Malicious sites reading your API responses from a victim's browser.",how:"1) Browser sends Origin 2) Server replies Allow-Origin 3) Mismatch: browser blocks.",when:"APIs called from browsers.",real:"A guest list at a club door.",code:"const cors=require('cors');\napp.use(cors({origin:'https://mysite.com'}));\n// prod: exact allowlist, never '*' with credentials",ascii:"evil.com -> API (Origin: evil.com)\nAPI: Allow-Origin: mysite.com\nBrowser: blocked",mist:"origin:'*' everywhere. Thinking CORS protects the server (it only guides browsers; curl ignores it).",ex:"Set origin to your site, call from another page, read the console error.",q:"Does CORS stop curl or Postman?",a:"No. It's enforced by browsers only."},
+{what:"Both sides present certificates and verify each other.",why:"Normal TLS only proves the server.",solves:"Fake clients and man-in-the-middle between services.",how:"1) Server shows cert 2) Client shows cert 3) Both verify with a trusted CA 4) Encrypted channel.",when:"Microservices, banking, internal APIs.",real:"You and the bank both show ID.",code:"https.createServer({key,cert,ca,requestCert:true,\n rejectUnauthorized:true},app).listen(443);\n// prod: short-lived certs, auto rotation (service mesh)",ascii:"Client <-cert-> Server\nboth verified -> encrypted",mist:"Expired certs. Manual rotation. Shared client certs.",ex:"Create a local CA with openssl and connect with and without a client cert.",q:"What does mTLS add over normal TLS?",a:"The client also proves its identity."},
+{what:"Signing each request with a secret so changes are detected.",why:"Keys alone don't prove the message is unaltered.",solves:"Tampering and replay attacks.",how:"1) Build string (method+path+body+time) 2) HMAC with secret 3) Send signature 4) Server recomputes and compares.",when:"Webhooks, payments, cloud APIs (AWS).",real:"A wax seal on a letter.",code:"const crypto=require('crypto');\nconst sig=crypto.createHmac('sha256',SECRET)\n  .update(body+timestamp).digest('hex');\n// prod: reject old timestamps, timing-safe compare",ascii:"body+secret -> HMAC -> sig\nserver recomputes: match = untouched",mist:"No timestamp (replay). Using == instead of timing-safe compare.",ex:"Sign 'amount=10', change to 1000, watch verification fail.",q:"Why include a timestamp?",a:"To reject replayed old requests."},
+{what:"Only listed IP addresses may connect.",why:"Some APIs should never be public.",solves:"Access from unknown networks.",how:"1) Keep allowed IPs 2) Read caller IP 3) Not listed: 403.",when:"Admin panels, partner integrations, internal tools.",real:"A building with a guest list.",code:"const ok=['10.0.0.5'];\napp.use('/admin',(req,res,next)=>\n  ok.includes(req.ip)?next():res.sendStatus(403));\n// prod: firewall/WAF level; careful with proxies (X-Forwarded-For)",ascii:"10.0.0.5 -> /admin OK\n203.0.113.9 -> 403",mist:"Trusting spoofable headers. Using it as the ONLY defense. Stale lists.",ex:"Change the list, call from another IP or via VPN.",q:"Is IP allowlisting enough alone?",a:"No. IPs can be shared or spoofed; layer it."},
+{what:"A tamper-resistant record of who did what, when.",why:"You can't investigate what you didn't record.",solves:"Undetected attacks, no accountability.",how:"1) Log key events 2) Include who/what/when/IP/result 3) Store safely 4) Alert on patterns.",when:"Logins, permission changes, deletes, payments.",real:"Security cameras.",code:"function audit(user,action,ok,req){\n  console.log(JSON.stringify({t:new Date(),user,action,ip:req.ip,ok}));\n}\n// prod: central log service, append-only, alerts",ascii:"event -> log{who,what,when,ip,result} -> alert",mist:"Logging passwords/tokens. Logs on the same box attackers control. Nobody reads them.",ex:"Add audit() to your login route; check failed attempts.",q:"Name two things you must NEVER log.",a:"Passwords and full tokens/keys."}
+];
+const F={t:"Foundations: 4 words",items:[["Authentication","Who are you? (login)"],["Authorization","What may you do? (admin vs user)"],["API security","Protect the API's logic and data (validation, tokens, limits)"],["Network security","Protect pipes and machines (firewall, VPN, TLS)"],["Defense in depth","Use many layers, so one failure isn't fatal"]]};
+const L={what:"What is it?",why:"Why does it exist?",solves:"Problem it solves",how:"How it works",when:"When it's used",real:"Real-world example"};
+const sel=(id,a)=>`<select id="${id}">${a.map(x=>`<option>${x}</option>`).join('')}</select>`;
+const M=[
+{n:"Rate Limiting",one:"Limit how many requests a client can make within a specific time.",p:"Maximum: 5 requests / 10 seconds. Spam the button.",f:["Under limit?","429"],o:["200","401","403","429"],c:3,
+ demo:`<div class="row"><button class="btn" onclick="rl()">Send request</button><span class="cnt" id="rlc">0 / 5</span></div><div class="meter"><i id="rlm"></i></div><div id="rlo"></div>`},
+{n:"API Keys",one:"Prove which app is calling with a secret string.",p:"Secret key is abc123. Try a wrong one.",f:["Key valid?","401"],o:["Anyone can view source and steal it","It makes the page slower","Browsers block keys","Keys expire in browsers"],c:0,
+ demo:`<div class="row"><input id="key" placeholder="your key"><button class="btn" onclick="ak()">Call API</button></div><div id="ako"></div>`},
+{n:"OAuth 2.0",one:"Grant limited access without sharing your password.",p:"The app asks permission. You never share your password.",f:["User allowed?","403"],o:["Your username only","A limited, temporary access token","A copy of your cookies","A permanent master key"],c:1,
+ demo:`<div class="row"><button class="btn" onclick="oa(1)">Log in with Google</button><button class="btn alt" onclick="oa(0)">Deny</button></div><div id="oao"></div>`},
+{n:"JWT Validation",one:"A signed token the server can verify and trust.",p:"Signed ticket. Change it and the signature breaks.",f:["Signature + expiry ok?","401"],o:["Yes","No, it is encrypted","Only the server","Only with the secret"],c:0,
+ demo:`<div class="row"><button class="btn alt" onclick="jwtMake()">Get token</button><button class="btn alt" onclick="jwtTamper()">Tamper (make me admin)</button><button class="btn" onclick="jwtCheck()">Send token</button></div><div class="tok" id="jwt">No token yet.</div><div id="jwo"></div>`},
+{n:"Input Sanitization",one:"Check and clean everything that comes in.",p:"Type <b>hi</b> or <img src=x onerror=alert(1)>.",f:["Input valid?","400"],o:["Parameterized queries","String concatenation","Frontend validation only","Blacklisting words"],c:0,
+ demo:`<div class="row"><input id="inp" value="&lt;b&gt;hello&lt;/b&gt;" style="flex:1"><button class="btn" onclick="san()">Show</button></div><div id="sao"></div>`},
+{n:"CORS Policy",one:"Browser rules for which sites may call your API.",p:"The API only allows mysite.com.",f:["Origin allowed?","Blocked"],o:["Yes","No","Only on HTTPS","Only with cookies"],c:1,
+ demo:`<div class="row">${sel('org',['mysite.com','evil-site.com'])}<button class="btn" onclick="co()">Call from browser</button></div><div id="coo"></div>`},
+{n:"mTLS",one:"Both sides show a certificate and verify each other.",p:"Both sides must show a certificate.",f:["Both certs valid?","Refused"],o:["The client also proves its identity","Faster connections","No certificates needed","Password login"],c:0,
+ demo:`<div class="row"><label><input type="checkbox" id="sc" checked> Server certificate</label><label><input type="checkbox" id="cc"> Client certificate</label><button class="btn" onclick="mt()">Connect</button></div><div id="mto"></div>`},
+{n:"Request Signing",one:"Sign requests so any change is detected.",p:"The amount is signed with a shared secret. Change it in transit.",f:["Signature match?","Rejected"],o:["To reject replayed old requests","To sort logs","To compress data","To hide the body"],c:0,
+ demo:`<div class="row"><input id="amt" type="number" value="10" style="width:100px"><button class="btn" onclick="sg(0)">Send $ (untouched)</button><button class="btn alt" onclick="sg(1)">Attack: change to $1000</button></div><div id="sgo"></div>`},
+{n:"IP Allowlisting",one:"Only listed IP addresses may connect.",p:"Allowed: 10.0.0.5 (your office).",f:["IP listed?","403"],o:["Yes, always","No, layer it","Only for admin","Only on VPN"],c:1,
+ demo:`<div class="row">${sel('ip',['10.0.0.5','203.0.113.9'])}<button class="btn" onclick="ipa()">Open admin API</button></div><div id="ipo"></div>`},
+{n:"Audit Log",one:"A record of who did what, when, and the result.",p:"Every action in the other layers lands here, newest first.",f:["Event logged?","Alert"],o:["Passwords and full tokens/keys","Timestamps and IPs","Status codes","Usernames and actions"],c:0,
+ demo:`<div class="row"><button class="btn alt" onclick="clr()">Clear log</button></div><div class="logt" id="log"></div>`}
+];
+const hl=s=>{let o='',l=0,m;const r=/(\/\/.*)|('[^']*'|"[^"]*")|\b(const|function|return|if|try|catch|new|await)\b/g;while(m=r.exec(s)){o+=esc(s.slice(l,m.index))+`<span class="${m[1]?'c':m[2]?'s':'k'}">${esc(m[0])}</span>`;l=r.lastIndex;}return o+esc(s.slice(l));};
+const flow=f=>`<div class="flow"><span class="nd">CLIENT</span><i>&rarr;</i><span class="nd">REQUEST</span><i>&rarr;</i><span class="nd ck">${f[0]}</span><i>&rarr;</i><div class="fork"><div><span class="nd ok">ALLOW</span><i>&rarr;</i><span class="nd">API</span></div><div><span class="nd no">DENY</span><i>&rarr;</i><span class="nd">${f[1]}</span></div></div></div>`;
+const pad=n=>String(n).padStart(2,'0');
+let cur=-1;const vis=new Set();
+function build(){
+  let h=`<section id="s-1"><div class="hero"><div><div class="tag">INTERACTIVE COURSE</div><h1>API Security</h1><p class="one">Learn how APIs protect data, users, and requests through multiple security layers.</p><p class="hint">Ten layers, one at a time. Learn the idea, try it in the playground, read the backend code, finish the exercise, and pass the quick check.</p><button class="btn" onclick="go(0)">Start learning &rarr;</button></div>`;
+  h+=`<div class="panel"><h4>The 10 layers</h4><div class="stack">${M.map((m,i)=>`<button class="btn alt" style="margin-inline:${i*6}px" onclick="go(${i})"><b>${pad(i+1)}</b> ${m.n}</button>`).join('')}</div><div class="core">YOUR API DATA</div></div></div>`;
+  const it=F.items;
+  h+=`<div class="panel"><h4>${F.t}</h4><div class="lg"><span class="nd top">${it[2][0].toUpperCase()}<small>${it[2][1]}</small></span><i>&darr;</i><div class="mid">${[it[0],it[1],it[3]].map(x=>`<span class="nd">${x[0]}<small>${x[1]}</small></span>`).join('')}</div><i>&darr;</i><span class="nd ck">${it[4][0]}<small>${it[4][1]}</small></span></div></div></section>`;
+  M.forEach((m,i)=>{const d=D[i];
+    h+=`<section id="s${i}"><div class="tag">${pad(i+1)}</div><h2>${m.n}</h2><p class="one">${m.one}</p>
+<div class="panel demo"><h4>Try it</h4><p class="hint">${m.p}</p>${m.demo}</div>
+<details class="lm"><summary>Learn more</summary><div class="lmb"><div class="grid">${Object.keys(L).map(k=>`<div class="cell"><b>${L[k]}</b><span>${esc(d[k])}</span></div>`).join('')}</div>
+<h5>Diagram</h5>${flow(m.f)}<pre>${esc(d.ascii)}</pre>
+<h5>Backend example</h5><div class="ed"><div class="edh"><span>server.js</span><button onclick="cp(${i},this)">Copy code</button></div><div class="cd">${d.code.split('\n').map((l,j)=>`<div class="cl"><span class="ln">${pad(j+1)}</span><span>${hl(l)||' '}</span></div>`).join('')}</div></div>
+<h5>Common mistakes</h5><div class="cell"><span>${esc(d.mist)}</span></div></div></details>
+<div class="panel"><h4>Try it yourself</h4><label class="chk"><input type="checkbox" id="ex${i}" onchange="this.parentNode.classList.toggle('done',this.checked)"><span>${esc(d.ex)}</span></label></div>
+<div class="panel" id="qz${i}"><h4>Quick check</h4><div>${esc(d.q)}</div><div class="qb">${m.o.map((o,j)=>`<button onclick="qa(${i},${j},this)">${esc(o)}</button>`).join('')}</div><p class="fb" id="fb${i}"></p></div></section>`;
+  });
+  $('main').innerHTML=h;
+  document.querySelectorAll('.demo').forEach((el,i)=>el.addEventListener('click',e=>{if(e.target.closest('button')){vis.add(i);nav();}}));
+  renderLog();
+}
+function cp(i,b){
+  const t=D[i].code;
+  const ok=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy code',1500);};
+  try{navigator.clipboard.writeText(t).then(ok,fb);}catch(e){fb();}
+  function fb(){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');ok();}catch(e){}a.remove();}
+}
+function qa(i,j,b){
+  const m=M[i],fb=$('fb'+i);vis.add(i);
+  if(j===m.c){
+    b.classList.add('ok');b.parentNode.querySelectorAll('button').forEach(x=>x.disabled=true);
+    fb.innerHTML=`<b style="color:var(--ok)">Correct.</b> ${esc(D[i].a)} ${i<9?'<button class="btn" style="margin-left:8px" onclick="go('+(i+1)+')">Next layer &rarr;</button>':''}`;
+  }else{b.classList.add('no');b.disabled=true;fb.innerHTML='<b style="color:var(--no)">Not quite.</b> Try another answer.';}
+  nav();
+}
+function nav(){
+  $('nav').innerHTML='<h3>API SECURITY</h3>'+`<button class="${cur<0?'cur':''}" onclick="go(-1)"><b>&#9679;</b>Overview</button>`+M.map((m,i)=>`<button class="${i===cur?'cur':''} ${vis.has(i)?'vis':''}" onclick="go(${i})"><b>${i===cur?'&rarr;':vis.has(i)?'&#10003;':'&#9675;'}</b>${pad(i+1)} ${m.n}</button>`).join('');
+  const c=$('nav').querySelector('.cur');if(c&&c.scrollIntoView)c.scrollIntoView({block:'nearest',inline:'center'});
+}
+function go(i){
+  if(i<-1||i>9)return;
+  cur=i;
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('on'));
+  $('s'+i).classList.add('on');
+  $('cnt').textContent=pad(i+1)+' / 10';$('cnt').textContent=(i<0?'00':pad(i+1))+' / 10';
+  $('pb').style.width=(i+1)*10+'%';
+  $('pv').disabled=i<0;$('nx').disabled=i>8;
+  nav();window.scrollTo(0,0);
+}
+document.addEventListener('keydown',e=>{
+  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
+  if(e.key==='ArrowRight')go(cur+1);else if(e.key==='ArrowLeft')go(cur-1);
+});
+build();go(-1);
+</script>
+</body>
+</html>

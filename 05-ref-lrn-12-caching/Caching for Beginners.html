@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caching for Beginners</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1a1d23;--mu:#5d6675;--bd:#dde1e7;--ac:#2563eb;--ok:#16a34a;--no:#dc2626;--wn:#d97706;--code:#eef1f5;--okb:#e8f6ed;--nob:#fdeaea;--wnb:#fef3e0;--bt:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1216;--card:#181c22;--tx:#e8eaee;--mu:#98a1b0;--bd:#2a303a;--ac:#5b8cff;--ok:#4ade80;--no:#f87171;--wn:#fbbf24;--code:#222831;--okb:#12261a;--nob:#2b1717;--wnb:#2b2212;--bt:#0f1216}}
+:root[data-theme="dark"]{--bg:#0f1216;--card:#181c22;--tx:#e8eaee;--mu:#98a1b0;--bd:#2a303a;--ac:#5b8cff;--ok:#4ade80;--no:#f87171;--wn:#fbbf24;--code:#222831;--okb:#12261a;--nob:#2b1717;--wnb:#2b2212;--bt:#0f1216}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit;padding:10px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);min-height:42px;margin:0 6px 8px 0}
+button{cursor:pointer}button:hover{border-color:var(--ac)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.btn{background:var(--ac);color:#fff;border:0;font-weight:600}.btn:disabled{opacity:.4;cursor:default}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd)}
+.hd{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px}
+.hd button{margin:0;min-height:34px;padding:4px 10px;font-size:13px}
+.brand{font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--ac)}
+.pg{flex:1;display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:6px;background:var(--code);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+#cnt{font:600 14px ui-monospace,Menlo,Consolas,monospace;color:var(--mu)}
+.app{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:230px 1fr;align-items:start}
+nav{position:sticky;top:64px;padding:16px;border-right:1px solid var(--bd)}
+nav h3{margin:0 0 8px;font-size:.8rem;color:var(--mu);font-weight:600}
+nav button{display:flex;gap:8px;width:100%;text-align:left;background:none;border:0;padding:7px 10px;min-height:0;margin:0;color:var(--mu);font-size:.9rem}
+nav button b{width:16px;text-align:center}
+nav button.cur{background:var(--code);color:var(--tx);font-weight:600}nav button.vis b{color:var(--ok)}
+main{padding:24px 24px 100px;min-width:0}
+section{display:none}section.on{display:block;animation:fi .25s}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+h1{font-size:2.6rem;line-height:1.1;margin:0 0 10px;letter-spacing:-.02em}
+h2{margin:0;font-size:1.7rem;letter-spacing:-.01em}
+.tag{font:600 13px ui-monospace,Menlo,Consolas,monospace;color:var(--ac)}
+.one{color:var(--mu);margin:4px 0 4px;font-size:1.05rem}.an{color:var(--mu);margin:0 0 16px;font-size:.92rem}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.panel>h4{margin:0 0 10px;font-size:.95rem}
+.out{margin-top:6px;padding:10px 14px;border:1px solid var(--bd);border-left:4px solid var(--bd);border-radius:8px;background:var(--code);font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all;min-height:44px;transition:background .2s}
+.out[data-s]::before{display:block;margin-bottom:4px;font-weight:700;font-size:11px}
+.out[data-s=ok]{border-left-color:var(--ok);background:var(--okb)}.out[data-s=ok]::before{content:"\25CF HIT / OK";color:var(--ok)}
+.out[data-s=no]{border-left-color:var(--no);background:var(--nob)}.out[data-s=no]::before{content:"\25CF STALE / PROBLEM";color:var(--no)}
+.out[data-s=wn]{border-left-color:var(--wn);background:var(--wnb)}.out[data-s=wn]::before{content:"\25CF MISS / NOTE";color:var(--wn)}
+details.lm{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-bottom:16px}
+details.lm>summary{cursor:pointer;padding:14px 18px;font-weight:600;color:var(--ac);list-style:none}
+details.lm>summary::after{content:"+";float:right}details.lm[open]>summary::after{content:"\2212"}
+.lmb{padding:0 18px 18px;animation:fi .2s}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px}
+.cell{border:1px solid var(--bd);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.cell b{display:block;font-size:.8rem;color:var(--mu);margin-bottom:2px}.cell span{font-size:.92rem}
+.lmb h5{margin:16px 0 6px;font-size:.85rem;color:var(--mu)}
+.ed{background:#0d1117;border-radius:10px;overflow:hidden;color:#e6edf3}
+.edh{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-bottom:1px solid #30363d;font:12px ui-monospace,Menlo,Consolas,monospace;color:#8b949e}
+.edh button{min-height:30px;padding:2px 10px;margin:0;background:#21262d;color:#e6edf3;border:1px solid #30363d;font-size:12px}
+.cd{overflow-x:auto;padding:10px 0;font:13px/1.55 ui-monospace,Menlo,Consolas,monospace}
+.cl{display:flex;white-space:pre;padding-right:14px}
+.ln{width:36px;flex:none;text-align:right;padding-right:12px;color:#6e7681;user-select:none}
+.c{color:#8b949e}.s{color:#a5d6ff}.k{color:#ff7b72}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.flow i{font-style:normal;color:var(--mu)}
+.nd{display:inline-block;border:1px solid var(--bd);background:var(--card);border-radius:8px;padding:5px 10px;font:600 12px ui-monospace,Menlo,Consolas,monospace}
+.nd em{font-style:normal;color:var(--ac);margin-right:6px}
+pre{background:var(--code);border-radius:8px;padding:10px;margin:8px 0 0;overflow-x:auto;font:12.5px/1.4 ui-monospace,Menlo,Consolas,monospace}
+.chk{display:flex;gap:10px;align-items:flex-start;margin:0}
+.chk input{margin:3px 0 0;min-height:0;width:18px;height:18px;padding:0}
+.chk.done span{text-decoration:line-through;color:var(--mu)}
+.logt{max-height:240px;overflow:auto;border:1px solid var(--bd);border-radius:8px;font:13px ui-monospace,Menlo,Consolas,monospace}
+.lr{display:grid;grid-template-columns:80px 1fr 90px;gap:8px;padding:7px 10px;border-bottom:1px solid var(--bd);align-items:center;min-width:360px;word-break:break-word}
+.lr.lh{position:sticky;top:0;background:var(--code);color:var(--mu);font-weight:600;font-size:11px}
+.bd{display:inline-block;padding:1px 10px;border-radius:99px;font:700 12px ui-monospace,Menlo,Consolas,monospace;color:var(--bt)}
+.bd.ok{background:var(--ok)}.bd.no{background:var(--no)}.bd.wn{background:var(--wn)}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:start;margin-bottom:24px}
+.stack{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.stack button{text-align:left;font-size:.9rem;padding:7px 12px;min-height:0;margin:0}
+.core{margin-top:4px;text-align:center;background:var(--code);border-radius:8px;padding:8px;font:600 13px ui-monospace,Menlo,Consolas,monospace}
+.fd{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.fd .top{border-color:var(--ac);background:var(--ac);color:#fff}.fd .top b{color:#fff}.fd .top span{color:#dbe6ff}
+.foot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+.fi{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;gap:8px}.fi button{margin:0}
+@media(max-width:820px){
+.app{grid-template-columns:1fr}
+nav{position:static;display:flex;gap:4px;overflow-x:auto;padding:8px;border:0;border-bottom:1px solid var(--bd);white-space:nowrap}
+nav h3{display:none}nav button{width:auto;flex:none}
+main{padding:16px 14px 100px}h1{font-size:2rem}.hero{grid-template-columns:1fr}
+.panel button,.panel input:not([type=checkbox]){width:100%;margin-right:0}
+.brand span{display:none}.fi button{flex:1}
+}
+</style></head><body>
+<header><div class="hd"><div class="brand"><i></i><span>Caching for Beginners</span></div><div class="pg"><div class="bar"><i id="pb"></i></div><div id="cnt">00 / 12</div></div><button id="th">Light/Dark</button></div></header>
+<div class="app"><nav id="nav"></nav><main id="main"></main></div>
+<div class="foot"><div class="fi"><button id="pv" onclick="go(cur-1)">&larr; Previous</button><button class="btn" id="nx" onclick="go(cur+1)">Next &rarr;</button></div></div>
+<script>
+const $=id=>document.getElementById(id), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const logs=[];
+const lst=m=>/STALE|crash|lost|Stampede: 5 requests -> [2-9]/i.test(m)?['no','PROBLEM']:/MISS|expired|cleared|purge|deleted|reset|DB updated|origin v|queued/i.test(m)?['wn','NOTE']:['ok','OK'];
+function log(m){logs.unshift({t:new Date().toLocaleTimeString([],{hour12:false}),m,s:lst(m)});rl()}
+function rl(){const e=$("log");if(!e)return;e.innerHTML='<div class="lr lh"><span>TIME</span><span>EVENT</span><span>RESULT</span></div>'+(logs.length?logs.map(l=>`<div class="lr"><span>${l.t}</span><span>${esc(l.m)}</span><span class="bd ${l.s[0]}">${l.s[1]}</span></div>`).join(''):'<div class="lr"><span></span><span>No events yet. Try a demo.</span></div>')}
+$("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme==="dark"||(!r.dataset.theme&&matchMedia("(prefers-color-scheme:dark)").matches);r.dataset.theme=d?"light":"dark"};
+const B=(el,t,f)=>{const b=document.createElement("button");b.textContent=t;b.onclick=f;el.appendChild(b);return b};
+const O=el=>{const o=document.createElement("div");o.className="out";o.textContent="Click a button.";el.appendChild(o);return o};
+const tag=(h)=>h?"HIT":"MISS";
+const stats={h:0,m:0};
+
+/* ---------- demos ---------- */
+function d1(el){const c=new Map([["cat","meow"],["dog","woof"]]),o=O(el);
+ const g=k=>{const h=c.has(k);stats[h?"h":"m"]++;o.textContent=h?`get ${k} -> HIT (1ms) value=${c.get(k)}`:`get ${k} -> not in cache (MISS)`;log(`Hit demo: ${k} ${tag(h)}`)};
+ B(el,"get cat",()=>g("cat"));B(el,"get dog",()=>g("dog"));B(el,"get fish",()=>g("fish"))}
+function d2(el){const c=new Map(),o=O(el);const i=document.createElement("input");i.value="user:1";el.insertBefore(i,o);
+ B(el,"Get",async()=>{const k=i.value||"x";if(c.has(k)){stats.h++;o.textContent=`${k}: HIT (1ms)`;log(`Miss demo: ${k} HIT`)}else{stats.m++;o.textContent=`${k}: MISS -> asking DB (200ms)...`;await sleep(400);c.set(k,"data");o.textContent=`${k}: MISS -> loaded from DB (200ms), saved in cache. Click again!`;log(`Miss demo: ${k} MISS, loaded + saved`)}});
+ B(el,"Clear cache",()=>{c.clear();o.textContent="Cache emptied.";log("Miss demo: cache cleared")})}
+function d3(el){let db=1,c=null;const o=O(el),r=m=>o.textContent=`DB=v${db}  Cache=${c===null?"empty":"v"+c}${c!==null&&c!==db?"  (STALE!)":""}\n${m}`;
+ B(el,"Read",()=>{if(c!==null){stats.h++;r("HIT: served from cache");log("Cache-aside: read HIT")}else{stats.m++;c=db;r("MISS: app loaded DB, then filled cache");log("Cache-aside: read MISS, app fills cache")}});
+ B(el,"Update DB only",()=>{db++;r("DB changed, cache untouched");log("Cache-aside: DB updated")});
+ B(el,"Delete cache key",()=>{c=null;r("Cache key removed, next read reloads");log("Cache-aside: key deleted")});r("")}
+function d4(el){let db="-",c="-";const o=O(el),r=m=>o.textContent=`Cache=${c}  DB=${db}\n${m}`;const i=document.createElement("input");i.value="hello";el.insertBefore(i,o);
+ B(el,"Write",async()=>{c=i.value;r("Cache updated... waiting for DB (slow)");await sleep(500);db=i.value;r("DB updated too. Both match, write was slower.");log(`Write-through: wrote "${i.value}" to cache + DB`)});r("")}
+function d5(el){let c=0,db=0,q=0;const o=O(el),r=m=>o.textContent=`Cache=${c}  DB=${db}  Pending writes=${q}\n${m}`;
+ B(el,"Write (+1)",()=>{c++;q++;r("Fast! DB not updated yet.");log("Write-behind: cache written, DB queued")});
+ B(el,"Flush to DB",()=>{db=c;q=0;r("Queue saved to DB.");log("Write-behind: flushed to DB")});
+ B(el,"Crash cache!",()=>{const lost=c-db;c=db;q=0;r(`Cache died. Lost ${lost} unsaved write(s)!`);log(`Write-behind: crash, lost ${lost} writes`)});r("")}
+function d6(el){let exp=0,has=false;const o=O(el);o.textContent="No key set.";
+ setInterval(()=>{if(has&&Date.now()<exp)o.textContent=`key lives for ${((exp-Date.now())/1000).toFixed(1)}s more`;else if(has){o.textContent="key expired (gone)"}},200);
+ B(el,"Set key (TTL 5s)",()=>{exp=Date.now()+5000;has=true;log("TTL: key set, 5s")});
+ B(el,"Get",()=>{const h=has&&Date.now()<exp;stats[h?"h":"m"]++;log(`TTL: get ${tag(h)}${has&&!h?" (expired)":""}`);if(!h)has=false})}
+function d7(el){const c=new Map(),o=O(el),r=m=>o.textContent=`oldest -> newest: [ ${[...c.keys()].join(" , ")} ]  (max 3)\n${m}`;
+ "ABCDE".split("").forEach(k=>B(el,"use "+k,()=>{let m;if(c.has(k)){c.delete(k);m=k+": HIT, moved to newest";stats.h++}else{stats.m++;m=k+": MISS, added";if(c.size>=3){const ev=c.keys().next().value;c.delete(ev);m+=`. Full! Evicted ${ev} (least recent)`}}c.set(k,1);r(m);log("LRU: "+m)}));r("")}
+function stamp(safe){return function(el){let cache=true,inf=null,calls=0;const o=O(el);
+ const req=async()=>{if(cache)return;if(safe){if(!inf){calls++;inf=sleep(600).then(()=>{cache=true;inf=null})}return inf}calls++;await sleep(600);cache=true};
+ B(el,"Key expires + 5 users ask",async()=>{cache=false;calls=0;o.textContent="Key expired. 5 requests arrive at once...";await Promise.all([1,2,3,4,5].map(req));o.textContent=`DB was hit ${calls} time(s) for the same data.${calls>1?" Too many! DB may crash.":" Only one. DB is safe."}`;log(`${safe?"Single-flight":"Stampede"}: 5 requests -> ${calls} DB call(s)`)})}}
+function d10(el){const edge={},o=O(el),far={Manila:80,Tokyo:150,London:300};
+ Object.keys(far).forEach(r=>B(el,"User in "+r,()=>{const h=edge[r];stats[h?"h":"m"]++;edge[r]=1;o.textContent=h?`${r} edge: HIT (20ms)`:`${r} edge: MISS -> origin server far away (${20+far[r]}ms), now cached at this edge`;log(`CDN: ${r} ${tag(h)}`)}));
+ B(el,"Purge edges",()=>{for(const k in edge)delete edge[k];o.textContent="All edges cleared.";log("CDN: purge all")})}
+function d11(el){let v=1,c=null;const o=O(el),r=m=>o.textContent=`Origin=v${v}  Cache=${c===null?"empty":"v"+c}${c!==null&&c!==v?"  STALE!":""}\n${m}`;
+ B(el,"Read",()=>{if(c===null){c=v;stats.m++;r("MISS: loaded fresh")}else{stats.h++;r(c===v?"HIT: fresh":"HIT: but OLD data shown!")}log("Invalidation: read")});
+ B(el,"Publish new version",()=>{v++;r("Origin changed. Cache doesn't know.");log("Invalidation: origin v"+v)});
+ B(el,"Purge cache",()=>{c=null;r("Invalidated. Next read is fresh.");log("Invalidation: purged")});r("")}
+function d12(el){const c=new Set(),o=O(el),r=()=>{const t=stats.h+stats.m;o.textContent=`hits=${stats.h}  misses=${stats.m}  hit ratio = ${t?Math.round(stats.h/t*100):0}%\n(counts all demos above too)`};
+ B(el,"Simulate 20 requests",()=>{for(let i=0;i<20;i++){const k=Math.random()<.6?"A":"BCDE"[Math.floor(Math.random()*4)],h=c.has(k);stats[h?"h":"m"]++;c.add(k)}r();log("Hit ratio: 20 requests simulated")});
+ B(el,"Reset stats",()=>{stats.h=stats.m=0;c.clear();r();log("Hit ratio: reset")});r()}
+
+const FOUND=["Cache: fast storage for copies of data.","Key / Value: the label / the data (user:1 / Ana).","Origin / DB: the slow, real source of data.","Latency: how long a request takes.","Stale: cached data that is out of date.","Eviction: removing items to make room.","TTL: time-to-live, a timer on cached data."];
+const C=[
+["Cache Hit","Data is already in the cache, so it returns fast.","Your snack is already on your desk.",d1,"A request that finds its data in the cache.","Memory is faster than the source.","Slow repeated reads.",["App asks cache","Key found","Return value"],"Any repeated read.","Browser reusing a logo image.","if (cache.has(k)) return cache.get(k);","Track hits as a metric.","App -> [Cache] -> found -> data","Assuming a hit means fresh data.","Click cat twice, note both are hits."],
+["Cache Miss","Data is not in the cache, so we fetch it from the source.","Snack not on desk, walk to the kitchen.",d2,"A request that doesn't find its data in the cache.","Cache starts empty and can't hold everything.","Getting data that was never cached.",["App asks cache","Not found","Read DB","Save to cache"],"First request, or after expiry/eviction.","First page load of a site.","const v = cache.get(k);\nif (!v) { v = db.read(k); cache.set(k, v); }","Misses cost latency; watch their rate.","App -> [Cache] x -> [DB] -> save","Not saving the result after a miss.","Get user:2, then again. What changed?"],
+["Cache-Aside","The app checks the cache first, and fills it on a miss.","You check the fridge, if empty you shop, then stock it.",d3,"App code manages the cache itself.","Simple, and cache holds only what's needed.","Slow reads without complex setup.",["Read cache","On miss read DB","App writes to cache","Return"],"Most read-heavy apps.","Redis in front of a SQL database.","async function get(k){\n  let v = await cache.get(k);\n  if (v == null){ v = await db.get(k); await cache.set(k, v, 60); }\n  return v;\n}","Delete the key on updates, don't edit it.","App -> Cache?\n  miss -> DB -> Cache","Updating DB and forgetting the cache.","Update DB, read, see stale. Fix it."],
+["Write-Through","Every write goes to the cache and the DB together.","You write in your notebook and the school record at once.",d4,"Writes update cache and DB in one step.","Keeps cache and DB matching.","Stale cache after writes.",["App writes","Cache updated","DB updated","Done"],"When reads must be fresh.","User profile settings.","await cache.set(k, v);\nawait db.set(k, v);","If one write fails, handle rollback.","App -> Cache -> DB","Ignoring the slower write time.","Write 3 values. Are both always equal?"],
+["Write-Behind","Write to cache now, save to DB later.","You jot a note, file it later.",d5,"Cache accepts writes; DB is updated after.","Writes become very fast.","Slow or heavy DB writes.",["Write to cache","Queue the change","Batch flush to DB"],"Counters, likes, analytics.","Video view counts.","cache.set(k, v); queue.push([k, v]);\nsetInterval(flush, 5000);","Use a durable queue or you can lose data.","App -> Cache -> (later) -> DB","Using it for money/critical data.","Write 3 times, then crash. What's lost?"],
+["TTL Expiry","Cached data deletes itself after a set time.","Milk with an expiry date.",d6,"A timer attached to a cached item.","Data gets old; TTL limits how old.","Stale data living forever.",["Set value + TTL","Timer runs","After TTL, item is removed"],"Data that changes slowly.","Weather cached for 10 min.","cache.set('weather', data, { ttl: 600 });","Add random jitter to TTLs.","set --5s--> [expired] -> miss","TTL too long (stale) or too short (useless).","Set, wait 5s, Get. What happens?"],
+["LRU Eviction","When full, remove the least recently used item.","A small desk: put away what you haven't touched longest.",d7,"Eviction policy: drop the oldest-used item.","Cache memory is limited.","Cache running out of space.",["Cache is full","New key arrives","Remove least recently used","Insert new"],"Any size-limited cache.","Redis maxmemory allkeys-lru.","// Map keeps insertion order\nm.delete(k); m.set(k, v);\nif (m.size > N) m.delete(m.keys().next().value);","Size by memory, not just item count.","[old ... new]  evict <- old","Thinking LRU = oldest created.","Use A,B,C,D then A. Who gets evicted?"],
+["Cache Stampede","Many requests hit the DB at once when a popular key expires.","Everyone rushes the door when the shop opens.",stamp(false),"A burst of misses for the same key.","Popular keys expire while traffic is high.","(It is a problem, not a fix.) Can crash the DB.",["Hot key expires","Many requests miss","All hit the DB together"],"Watch for it on hot keys.","Homepage data at peak time.","// every request does:\nif (!cache.get(k)) db.read(k);","Use locks, single-flight, or early refresh.","req req req req req\n  \\  |  |  |  /\n      [DB] overload","Giving all hot keys the same TTL.","Click the button. How many DB calls?"],
+["Single-Flight","Only one request loads the data, the others wait for it.","One person fetches pizza for the whole group.",stamp(true),"Merge duplicate in-flight loads into one.","Stops stampedes.","DB overload on hot misses.",["First miss starts load","Others wait on it","Result shared with all"],"Hot keys, expensive queries.","Go's singleflight package.","const inflight = new Map();\nfunction load(k){\n  if(!inflight.has(k)) inflight.set(k, db.get(k).finally(()=>inflight.delete(k)));\n  return inflight.get(k);\n}","Per-server only; use a distributed lock for many servers.","req x5 -> [1 load] -> DB\n  all share result","Forgetting to clear the in-flight entry.","Compare DB calls with the stampede demo."],
+["CDN Edge Cache","Copies of content stored in servers near users.","A local branch store instead of the far warehouse.",d10,"A cache network spread across the world.","Distance causes delay.","Slow loads for far-away users.",["User asks nearest edge","Edge has it? return","Else fetch origin and keep a copy"],"Images, videos, JS/CSS, static pages.","Cloudflare, CloudFront.","Cache-Control: public, max-age=86400","Use versioned file names (app.v2.js).","User -> [Edge] -> (miss) -> Origin","Caching private/personal pages.","Ask from Manila twice, then London. Compare."],
+["Invalidation","Remove or refresh cached data when the source changes.","Replace the old menu when prices change.",d11,"Deleting or updating cache when data changes.","Cache doesn't know the source changed.","Users seeing old data.",["Data changes","Purge or update cache key","Next read reloads fresh"],"After every write to cached data.","Purging a CDN after a deploy.","await db.update(k, v);\nawait cache.del(k);","Famously hard: 'two hard things' joke.","DB changed -> cache.del -> miss -> fresh","Never invalidating at all.","Publish, read (stale), purge, read."],
+["Hit Ratio","The percentage of requests served from the cache.","How often your snack is already on the desk.",d12,"hits / (hits + misses).","Shows if the cache is helping.","Not knowing if caching works.",["Count hits","Count misses","Divide hits by total"],"Tuning size, TTL, and keys.","Dashboards: 95% hit ratio is good.","ratio = hits / (hits + misses);","Aim high, but look at latency too.","hits=80 misses=20 -> 80%","Chasing 100% and serving stale data.","Simulate 20 requests, then reset. Compare."]
+];
+const N=C.length,pad=n=>String(n).padStart(2,'0');
+const hl=s=>{let o='',l=0,m;const r=/(\/\/.*)|('[^']*'|"[^"]*")|\b(const|function|return|if|await|async|let|new)\b/g;while(m=r.exec(s)){o+=esc(s.slice(l,m.index))+`<span class="${m[1]?'c':m[2]?'s':'k'}">${esc(m[0])}</span>`;l=r.lastIndex}return o+esc(s.slice(l))};
+const stOf=t=>/STALE|OLD data|Lost|died|Too many/i.test(t)?'no':/MISS|not in cache|empty|expired|gone|emptied|cleared|removed|waiting|not updated yet|No key|Click a button/i.test(t)?'wn':/HIT|fresh|match|Only one|safe|lives for|Fast|saved|loaded|updated|Queue/i.test(t)?'ok':'';
+let cur=-1;const vis=new Set(),mn=$("main");
+let h=`<section id="s-1"><div class="hero"><div><div class="tag">INTERACTIVE COURSE</div><h1>Caching for Beginners</h1><p class="one">Learn how apps answer faster by keeping copies of data close.</p><p class="an">${N} topics, one at a time. Learn the idea, try the demo, read the code, finish the exercise.</p><button class="btn" onclick="go(0)">Start learning &rarr;</button></div><div class="panel"><h4>The ${N} topics</h4><div class="stack">${C.map((c,i)=>`<button onclick="go(${i})"><b>${pad(i+1)}</b> ${c[0]}</button>`).join('')}</div><div class="core">FAST RESPONSES</div></div></div>
+<div class="panel"><h4>Foundations</h4><div class="fd">${FOUND.map((f,i)=>{const[a,b]=f.split(/:(.*)/);return`<div class="cell ${i<2?'top':''}"><b>${a}</b><span>${b.trim()}</span></div>`}).join('')}</div></div></section>`;
+C.forEach((c,i)=>{
+ const cells=[["What is it?",c[4]],["Why does it exist?",c[5]],["Problem it solves",c[6]],["When it's used",c[8]],["Real-world example",c[9]],["Production note",c[11]],["Common mistakes",c[13]]];
+ h+=`<section id="s${i}"><div class="tag">${pad(i+1)}</div><h2>${c[0]}</h2><p class="one">${esc(c[1])}</p><p class="an">Like: ${esc(c[2])}</p>
+<div class="panel" id="dm${i}"><h4>Try it</h4></div>
+<div class="panel"><h4>How it works</h4><div class="flow">${c[7].map((x,j)=>`${j?'<i>&rarr;</i>':''}<span class="nd"><em>${j+1}</em>${esc(x)}</span>`).join('')}</div></div>
+<details class="lm"><summary>Learn more</summary><div class="lmb"><div class="grid">${cells.map(x=>`<div class="cell"><b>${x[0]}</b><span>${esc(x[1])}</span></div>`).join('')}</div>
+<h5>Diagram</h5><pre>${esc(c[12])}</pre>
+<h5>Code example</h5><div class="ed"><div class="edh"><span>example.js</span><button onclick="cp(${i},this)">Copy code</button></div><div class="cd">${c[10].split('\n').map((l,j)=>`<div class="cl"><span class="ln">${pad(j+1)}</span><span>${hl(l)||' '}</span></div>`).join('')}</div></div></div></details>
+<div class="panel"><h4>Try it yourself</h4><label class="chk"><input type="checkbox" onchange="this.parentNode.classList.toggle('done',this.checked)"><span>${esc(c[14])}</span></label></div></section>`});
+h+=`<div class="panel"><h4>Live log</h4><div style="margin-bottom:8px"><button onclick="logs.length=0;rl()">Clear log</button></div><div class="logt" id="log"></div></div>`;
+mn.innerHTML=h;
+C.forEach((c,i)=>{const d=$("dm"+i);c[3](d);const o=d.querySelector(".out");
+ new MutationObserver(()=>{const s=stOf(o.textContent);s?o.dataset.s=s:delete o.dataset.s}).observe(o,{childList:true,characterData:true,subtree:true});
+ d.addEventListener("click",e=>{if(e.target.closest("button")){vis.add(i);nav()}})});
+rl();
+function cp(i,b){const t=C[i][10],ok=()=>{b.textContent="Copied";setTimeout(()=>b.textContent="Copy code",1500)};
+ const fb=()=>{const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy");ok()}catch(e){}a.remove()};
+ try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}}
+function nav(){
+ $("nav").innerHTML='<h3>CACHING FOR BEGINNERS</h3>'+`<button class="${cur<0?'cur':''}" onclick="go(-1)"><b>&#9679;</b>Overview</button>`+C.map((c,i)=>`<button class="${i===cur?'cur':''} ${vis.has(i)?'vis':''}" onclick="go(${i})"><b>${i===cur?'&rarr;':vis.has(i)?'&#10003;':'&#9675;'}</b>${pad(i+1)} ${c[0]}</button>`).join('');
+ const e=$("nav").querySelector(".cur");if(e&&e.scrollIntoView)e.scrollIntoView({block:"nearest",inline:"center"})}
+function go(i){
+ if(i<-1||i>=N)return;cur=i;
+ document.querySelectorAll("section").forEach(s=>s.classList.remove("on"));$("s"+i).classList.add("on");
+ $("cnt").textContent=(i<0?"00":pad(i+1))+" / "+N;$("pb").style.width=((i+1)/N*100)+"%";
+ $("pv").disabled=i<0;$("nx").disabled=i>=N-1;nav();window.scrollTo(0,0)}
+document.addEventListener("keydown",e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(e.key==="ArrowRight")go(cur+1);else if(e.key==="ArrowLeft")go(cur-1)});
+go(-1);
+</script></body></html>
