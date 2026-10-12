@@ -99,3 +99,116 @@ Which statement **BEST** describes the AWS Global Infrastructure benefit of high
 
 **Explanation:**  
 AWS provides multiple data centers across different geographic regions. This setup enhances high availability by making sure that your online store can handle increased traffic even during unforeseen events.
+
+### Test Your Skills – 5
+
+You work for a startup company that is developing an application in the cloud. A new security update is available for your operating system (OS), and you are tasked with verifying that the OS is patched accordingly.
+
+**Question:**
+
+Which statement **BEST** describes which party is responsible for applying security patches to the OS that is running in the cloud?
+
+**Options:**
+
+1. AWS is responsible for applying security patches to the OS.
+
+2. **Your company is responsible for applying security patches to the OS.**  
+   → Correct Answer ✅
+
+3. Both AWS and the customer apply separate patches.
+
+4. The OS vendor applies the patches.
+
+**Explanation:**
+
+The customer is responsible for managing security configurations and applying security patches to the OS running on Amazon EC2 instances.
+
+Here’s the **full version** with every question, all options, and the correct answer clearly marked:
+
+---
+
+### Question 1
+**What is the customer's responsibility, based on the AWS Shared Responsibility Model? (Select TWO.)**
+
+- Physical security of data centers  
+- Networking and infrastructure hardware maintenance  
+- Updating compute, networking, storage, and database software  
+- **Managing operating system (OS) patches** ← Correct  
+- **Encrypting client-side data** ← Correct  
+
+---
+
+### Question 2
+**Which statement BEST describes the difference between AWS Regions and Availability Zones?**
+
+- A. An Availability Zone spans multiple physical locations across Regions, and Regions are located across the world.  
+- **B. A Region is a geographical location that contains three or more Availability Zones. An Availability Zone is a distinct location within a Region that contains one or more discrete data centers.** ← Correct  
+- C. A Region is a single data center, and an Availability Zone consists of multiple data centers.  
+- D. An Availability Zone is a geographical location that contains three or more Regions. A Region is a distinct location within an Availability Zone that contains one or more discrete data centers.  
+
+---
+
+### Question 3
+**Which deployment type is BEST for this situation?**  
+*(Government agency wants to keep control of existing IT but use AWS for some apps)*
+
+- **A. Hybrid** ← Correct  
+- B. On-premises  
+- C. Cloud  
+- D. Compliance  
+
+---
+
+### Question 4
+**Which statement accurately defines the cloud computing model and addresses the finance manager's concern about fixed costs?**
+
+- A. Cloud computing reduces the need for additional hardware but still involves significant fixed monthly fees.  
+- B. Cloud computing involves purchasing dedicated servers and setting up a private data center. This model often comes with fixed costs related to hardware and maintenance.  
+- **C. Cloud computing is a model for delivering IT resources over the internet. Businesses can rent services on a pay-as-you-go basis, which can help reduce fixed costs and allow for more flexible budgeting.** ← Correct  
+- D. Cloud computing is basically just using someone else's server to host your website, and it does not offer any sort of significant cost advantages over traditional hosting solutions.  
+
+---
+
+### Question 5
+**Which statement BEST describes the client-server model and its relationship to cloud computing?**
+
+- A. In the client-server model, the server only handles data storage, and the client performs all processing tasks. Cloud computing provides data storage, but not processing power.  
+- B. In the client-server model, the client is responsible for securing their data, and the server is responsible for securing the physical hardware. Cloud computing replaces the client-server model.  
+- **C. In the client-server model, the client sends requests to the server, which processes the requests and sends back responses. Cloud computing provides scalable server resources that can be accessed over the internet.** ← Correct  
+- D. The client-server model is outdated and no longer used in modern applications. Cloud computing has replaced it completely.  
+
+---
+
+### Question 6
+**What BEST describes the benefits of AWS Global Infrastructure related to this situation? (Select TWO.)**
+
+- A. Cost savings  
+- **B. Fault tolerance** ← Correct  
+- C. Compliance with regulatory standards  
+- D. Ease of use  
+- **E. High availability** ← Correct  
+
+---
+
+### Question 7
+**Which choice BEST describes which advantage of the cloud this enterprise can benefit from?**  
+*(Want to reduce operational overhead of managing physical infrastructure)*
+
+- Stop guessing capacity  
+- Increase speed and agility  
+- **Stop spending money running and maintaining data centers** ← Correct  
+- Benefit from massive economies of scale  
+
+---
+
+### Question 8
+**Which statement BEST describes the company's responsibility when it comes to securing physical infrastructure of the cloud?**
+
+- A. The company does not have any responsibility when it comes to security in the cloud.  
+- **B. AWS is responsible for securing the physical infrastructure, and the company can focus on securing their data and applications within the cloud.** ← Correct  
+- C. The company is fully responsible for securing all physical infrastructure of the cloud, including data centers.  
+- D. The company shares responsibility with the cloud provider for securing the physical infrastructure.  
+
+---
+
+All questions with full options and correct answers are also saved in this file:

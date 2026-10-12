@@ -376,7 +376,7 @@ Just like a construction company won’t come lock your front door every day.
 You control your data completely:
 - You decide who can see it
 - You can encrypt it
-- Even if someone gains access, encrypted data stays unreadable
+- Even if someone gains access, encrypted data stays unreadable - if in the AWS 
 
 ---
 
@@ -386,3 +386,37 @@ You control your data completely:
 > **You** are responsible for security **in** the cloud.
 
 Together, this creates a secure environment.
+
+
+## Applying Cloud Concepts to Real-Life Use Cases
+
+### Example: E-commerce Company Expanding Globally
+
+An e-commerce company wants to expand its business worldwide. It can use two AWS concepts to achieve this: **AWS Global Infrastructure** and the **AWS Shared Responsibility Model**.
+
+### 1. AWS Global Infrastructure 
+
+- **Regions:** The company can deploy its application closer to customers to reduce latency.
+- **Availability Zones (AZs):** The company can deploy its application across multiple AZs so it can continue operating if one AZ fails.
+
+**Example:** 
+Regions: A company serving customers in Europe and Asia can deploy its application in the AWS Ireland Region and Singapore Region.
+Availability Zones (AZs): A company deploys its application in two AZs within the Ireland Region so that the application can continue operating if one AZ fails.
+
+### 2. AWS Shared Responsibility Model
+
+AWS and the customer share responsibility for security.
+
+- **AWS:** Secures the cloud infrastructure, including physical data centers, hardware, and networking.
+- **Customer:** Secures its data, applications, access permissions, and security configurations.
+
+**Example:** AWS secures the physical servers, while the company protects customer information and manages access to its application.
+
+### Summary
+
+By combining these two concepts, a business can:
+
+- Reach customers around the world.
+- Reduce latency by deploying closer to customers.
+- Improve availability by using multiple Availability Zones.
+- Keep its applications and data secure through shared responsibilities.
