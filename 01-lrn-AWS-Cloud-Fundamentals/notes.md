@@ -170,3 +170,219 @@ Using multiple cloud providers (multi-cloud) is also considered a type of hybrid
 | Hybrid        | Mix of cloud + on-premises | Best of both worlds           | Companies with mixed needs        |
 
 
+---
+
+### Six Main Benefits of the AWS Cloud
+
+#### 1. Pay as you go (Trade fixed expenses for variable expenses)
+In a traditional data center, you must invest a lot of money **upfront** (building, hardware, staff, maintenance).  
+This creates a **fixed cost** every month — even if you don’t use everything.
+
+With AWS:
+- You start small
+- You only pay for what you actually use
+- Your bill changes every month based on usage
+- No big upfront investment needed
+
+---
+
+#### 2. Benefit from massive economies of scale
+AWS buys huge amounts of hardware for data centers around the world.  
+Because they buy in bulk, they get lower prices — and they pass those savings on to you.
+
+---
+
+#### 3. Stop guessing capacity
+In traditional data centers, you must guess how much capacity you’ll need in the future.
+
+- If you buy **too much** → You waste money  
+- If you buy **too little** → Your system may crash or customers leave
+
+With AWS:
+- You only provision what you need **right now**
+- You can scale up or down in **minutes** (not weeks or months)
+
+---
+
+#### 4. Increase speed and agility
+With AWS, you can quickly create test environments and try new ideas.
+
+- If the idea works → Keep it  
+- If it doesn’t work → Just delete the resources and stop paying  
+
+This means less time managing infrastructure and **more time innovating**.
+
+---
+
+#### 5. Stop spending money running and maintaining data centers
+You no longer need to:
+- Buy servers
+- Rack and stack hardware
+- Manage power and cooling
+- Maintain the physical data center
+
+Instead, you can focus more on your customers and your business.
+
+---
+
+#### 6. Go global in minutes
+Want to expand your business to another country (for example, from the US to India)?
+
+Traditionally → This could take months or years (building new data centers).
+
+With AWS → You can deploy your application to an AWS Region in that country in just **minutes**.
+
+---
+
+**Summary:**  
+With AWS, your business gets:
+- Cost savings
+- Time savings
+- Access to massive global infrastructure
+
+**Here’s a simple and clear version of the next topic:**
+
+---
+
+## AWS Global Infrastructure
+
+AWS builds and maintains data centers around the world.  
+One big advantage of this global setup is **high availability**.
+
+---
+
+### Coffee Shop Analogy
+
+Imagine you have a coffee shop.
+
+One day, a new employee accidentally spills a latte on the register.  
+The register breaks and the electricity goes out.  
+→ That shop has to close temporarily.
+
+But luckily, your coffee shop is a **chain** with many locations around the city.  
+Customers can still buy coffee from another shop nearby.  
+Your business continues running and making money.
+
+This is the idea of **high availability**.
+
+---
+
+### High Availability vs Fault Tolerance
+
+| Term                  | Simple Meaning                                                                 |
+|-----------------------|--------------------------------------------------------------------------------|
+| **High Availability** | Your application stays accessible with **minimal downtime**. Even if one part fails, another part takes over. |
+| **Fault Tolerance**   | Your system is designed to keep working **even if multiple parts fail**. It builds extra protection at every level. |
+
+---
+
+### How AWS is Structured
+
+AWS organizes its infrastructure in this way:
+
+1. **Region**  
+   - A physical location in the world (examples: Paris, Tokyo, São Paulo, Dublin, Ohio)  
+   - Built close to customers
+
+2. **Availability Zone (AZ)**  
+   - Each Region has **3 or more Availability Zones**  
+   - AZs are separated from each other (not right next to each other)  
+   - This protects against natural disasters or local failures
+
+3. **Data Center**  
+   - Inside each Availability Zone, there are one or more data centers  
+   - Each data center has **redundant power, networking, and connectivity**
+
+---
+
+### Why This Design is Important
+
+It’s risky to put everything in **one single data center**.  
+If that data center has a power outage or disaster → all applications go down.
+
+That’s why AWS uses:
+- Multiple Availability Zones inside a Region
+- Multiple Regions around the world
+
+Many companies even run their applications across **multiple Regions**.  
+If one Region has a problem, traffic can automatically move (failover) to another Region.
+
+---
+
+**In short:**  
+AWS Global Infrastructure is designed so your applications stay **highly available** and **fault tolerant** — even during problems or disasters.
+
+**Here’s a simple and clear version:**
+
+---
+
+## AWS Shared Responsibility Model
+
+**Main Idea:**  
+Security on AWS is a **shared** responsibility between **AWS** and **you (the customer)**.
+
+Both sides are responsible for keeping everything secure.
+
+---
+
+### Simple Analogy: Building a House
+
+- **AWS** = The construction company  
+  They build the house with strong walls and solid doors.
+
+- **You (Customer)** = The homeowner  
+  You are responsible for locking the doors and keeping the house secure.
+
+---
+
+### Who is Responsible for What?
+
+| Responsibility                      | Who is Responsible? | Simple Explanation |
+|-------------------------------------|---------------------|--------------------|
+| **Security of the Cloud**           | AWS                 | Physical buildings, hardware, network, and the virtualization layer (hypervisor) |
+| **Security in the Cloud**           | Customer (You)      | Your operating system, applications, data, and how you configure everything |
+
+---
+
+### AWS Responsibilities (Security of the Cloud)
+AWS takes care of:
+- Physical security of data centers (locks, cameras, access control)
+- Network security
+- Hypervisor (the layer that separates different customers’ workloads)
+
+You don’t need to worry about the buildings or the hardware.
+
+---
+
+### Customer Responsibilities (Security in the Cloud)
+You are 100% responsible for:
+- Your **Operating System** (installing updates and patches)
+- Your **Applications**
+- Your **Data** (who can access it and whether it is encrypted)
+- User accounts and access control
+- Configuring security settings correctly
+
+**Important:**  
+AWS cannot log into your operating system or fix your applications for you.  
+Just like a construction company won’t come lock your front door every day.
+
+---
+
+![AWS Diagram](shared-responsibility.jpg)
+
+---
+
+### About Your Data
+You control your data completely:
+- You decide who can see it
+- You can encrypt it
+- Even if someone gains access, encrypted data stays unreadable
+
+---
+
+**Remember this simple rule:**
+
+> **AWS** is responsible for security **of** the cloud.  
+> **You** are responsible for security **in** the cloud.
+
+Together, this creates a secure environment.
