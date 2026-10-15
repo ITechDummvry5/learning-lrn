@@ -368,7 +368,7 @@ Just like a construction company won’t come lock your front door every day.
 
 ---
 
-![AWS Diagram](shared-responsibility.jpg)
+![AWS Diagram](images/shared-responsibility.jpg)
 
 ---
 
