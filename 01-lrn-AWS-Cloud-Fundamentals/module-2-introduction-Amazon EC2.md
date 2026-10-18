@@ -145,3 +145,156 @@ Once connected, you can:
 
 **Summary:**  
 Amazon EC2 gives you virtual servers that you can start, use, and stop whenever you need — without the long waiting time and high cost of buying physical servers.
+
+---
+Here’s the clear and simple version:
+
+---
+
+### Amazon EC2 Instance Types
+
+Amazon EC2 offers many different types of virtual servers (instances).  
+Each type is designed for a different kind of work.
+
+**Coffee Shop Analogy:**  
+Just like a coffee shop needs different machines for different drinks  
+(espresso machine, drip coffee machine, cold brew machine…),  
+you need different EC2 instance types for different workloads.
+
+---
+
+### The 5 Main Instance Families
+
+| Instance Family              | Best For                                      | Simple Example                          |
+|-----------------------------|-----------------------------------------------|-----------------------------------------|
+| **General Purpose**         | Balanced CPU, memory, and networking          | Websites, code repositories, small apps |
+| **Compute Optimized**       | Heavy CPU work                                | Gaming servers, high-performance computing, scientific modeling |
+| **Memory Optimized**        | Workloads that need a lot of memory           | Processing large data sets in memory    |
+| **Accelerated Computing**   | Tasks that need special hardware (GPU, etc.)  | Graphics processing, machine learning, pattern matching |
+| **Storage Optimized**       | High performance with local storage           | Workloads that read/write large amounts of data very fast |
+
+---
+
+### Choosing the Right Size
+
+After choosing the **type** (family), you also choose the **size**.
+
+- Bigger size = more CPU, more memory, more power → higher cost  
+- Smaller size = less power → lower cost  
+
+**Tip:**  
+Always try to balance performance and cost.  
+Don’t pay for more power than you actually need.
+
+---
+
+### Important Point
+
+You are **not locked** into one instance type or size forever.  
+
+If the one you chose is too small or too big, you can easily change it later.  
+This flexibility is one of the biggest advantages of the cloud.
+
+---
+
+**Summary:**  
+Choose the right instance family based on your workload, then choose the right size based on your performance needs and budget.
+
+
+---
+
+Here’s the clear and simple version:
+
+---
+
+### How to Provision AWS Resources
+
+In AWS, almost everything is done through **API calls**.  
+An API is a set of predefined methods that let you create, manage, and configure AWS resources.
+
+There are **3 main ways** to interact with AWS:
+
+1. AWS Management Console  
+2. AWS Command Line Interface (AWS CLI)  
+3. AWS Software Development Kit (AWS SDK)
+
+---
+
+### 1. AWS Management Console
+- Browser-based (point-and-click interface)
+- Very easy and visual
+- Perfect for beginners
+
+**Good for:**
+- Learning AWS
+- Setting up test environments
+- Checking bills
+- Monitoring resources
+- Doing simple or non-technical tasks
+
+**Limitation:**  
+Manual clicking can lead to mistakes, especially when you need to do the same task many times.
+
+---
+
+### 2. AWS Command Line Interface (AWS CLI)
+- You type commands in a terminal
+- Works on Windows, macOS, and Linux
+- Allows automation through scripts
+
+**Good for:**
+- Advanced users and developers
+- Automating tasks (example: launching many EC2 instances automatically)
+
+**Example commands:**
+- `aws ec2 run-instances` → Launch an EC2 instance  
+- `aws ec2 describe-availability-zones` → List Availability Zones
+
+You can also use **AWS CloudShell** (a browser-based terminal with the CLI already installed).
+
+---
+
+### 3. AWS Software Development Kit (AWS SDK)
+- Lets you control AWS services using programming languages (Python, Java, JavaScript, C++, .NET, etc.)
+- Useful when you want your application to talk directly to AWS
+
+**Good for:**
+- Developers who want to integrate AWS services into their own applications
+
+---
+
+### Summary Table
+
+| Method                  | How it works                          | Best for                              |
+|-------------------------|---------------------------------------|---------------------------------------|
+| **Management Console**  | Point and click in the browser        | Learning, testing, simple tasks       |
+| **AWS CLI**             | Type commands in a terminal           | Automation and scripting              |
+| **AWS SDK**             | Write code in a programming language  | Building applications that use AWS    |
+
+No matter which method you use, behind the scenes you are always calling the same AWS APIs.
+
+---
+
+### Compute and the Shared Responsibility Model
+
+Remember the **Shared Responsibility Model**:
+
+- **AWS** is responsible for security **of** the cloud (physical hardware, data centers, networking, hypervisor)
+- **You (the customer)** are responsible for security **in** the cloud (your data, applications, operating system, access control)
+
+#### Unmanaged Service Example: Amazon EC2
+Amazon EC2 is an **unmanaged service**.
+
+This means:
+- You are responsible for managing the guest operating system
+- You must apply security updates and patches
+- You configure security groups (firewalls)
+- You manage the applications and data running on the instance
+
+AWS only manages the physical hardware and the hypervisor underneath.
+
+---
+
+![AWS Diagram](images/unmanaged-services.jpg)
+
+---
