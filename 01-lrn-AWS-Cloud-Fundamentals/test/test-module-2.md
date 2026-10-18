@@ -1,4 +1,4 @@
-Here’s the updated Module Quiz with Questions 5 and 6 added:
+Here’s the updated Module Quiz with Questions 7 and 8 added:
 
 ---
 
@@ -128,3 +128,43 @@ Which Amazon EC2 instance type would be the MOST suitable for this use case?
 
 **Explanation:**  
 Storage optimized instances are designed for workloads that require high-disk throughput and low-latency access to large datasets. This makes them the best choice for data analytics applications.
+
+---
+
+### Question 7
+
+**Question:**  
+What is a primary advantage of using the AWS Command Line Interface (AWS CLI) over the AWS Management Console?
+
+**Options:**
+
+1. It provides a visual, drag-and-drop interface for managing AWS resources.
+2. It uses automation and scripting, which reduces manual steps and errors.
+3. It is only available for Windows users.
+4. It requires fewer configurations and is ideal for one-time manual provisioning.
+
+**Correct Answer:**  
+**2. It uses automation and scripting, which reduces manual steps and errors.** ← Correct
+
+**Explanation:**  
+The AWS CLI enables automation through scripting, which is more efficient and reduces manual errors compared to the console.
+
+---
+
+### Question 8
+
+**Question:**  
+What is the customer's responsibility when using compute services like Amazon EC2 according to the AWS shared responsibility model?
+
+**Options:**
+
+1. AWS manages the security of the cloud, and the customer manages the security of the infrastructure.
+2. The customer is responsible for securing the physical hardware of their EC2 instances.
+3. AWS is responsible for managing the operating system, networking, and applications on the customer's EC2 instances.
+4. The customer is responsible for configuring, securing, and managing the operating system, networking, and applications on their EC2 instances.
+
+**Correct Answer:**  
+**4. The customer is responsible for configuring, securing, and managing the operating system, networking, and applications on their EC2 instances.** ← Correct
+
+**Explanation:**  
+The customer handles the operating system, networking, and applications on the EC2 instances. AWS manages the hardware.
