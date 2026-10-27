@@ -298,3 +298,68 @@ AWS only manages the physical hardware and the hypervisor underneath.
 ![AWS Diagram](images/unmanaged-services.jpg)
 
 ---
+# Amazon EC2 & Amazon Machine Images (AMIs)
+
+## Demo: Launching an Amazon EC2 Instance
+
+When setting up an EC2 instance, you need to choose several key configurations:
+
+- AMI (the template)
+- Instance type
+- Storage
+- Security group
+- Key pair
+- Network settings
+
+---
+
+## What is an AMI?
+
+An **Amazon Machine Image (AMI)** is a pre-built virtual machine image.  
+It contains all the basic components needed to start an EC2 instance.
+
+---
+
+## AMI Repeatability
+
+AMIs provide **repeatability** by giving every new instance a consistent environment.
+
+- Configurations are identical
+- Deployments can be automated
+- Development and testing environments stay consistent
+- Helps when scaling applications
+- Reduces errors
+- Makes managing large environments easier
+
+![AWS Diagram](images/AMI-repeatability.jpg)
+
+---
+
+## AMI Components
+
+An AMI includes:
+
+- Operating system
+- Storage setup
+- Architecture type
+- Launch permissions
+- Any extra pre-installed software
+
+You can use **one AMI** to launch multiple EC2 instances that all have the same setup.
+
+![AWS Diagram](images/AMI-components.jpg)
+
+---
+
+## Three Ways to Use AMIs
+
+1. **Create your own**  
+   Build a custom AMI with the exact configurations and software you need.
+
+2. **Use AWS-provided AMIs**  
+   Ready-made images from Amazon for common operating systems and software.
+
+3. **Purchase from the AWS Marketplace**  
+   Specialized AMIs offered by third-party vendors for specific use cases.
+
+![AWS Diagram](images/Three-ways-to-use-AMIs.jpg)
