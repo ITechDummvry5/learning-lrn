@@ -363,3 +363,160 @@ You can use **one AMI** to launch multiple EC2 instances that all have the same 
    Specialized AMIs offered by third-party vendors for specific use cases.
 
 ![AWS Diagram](images/Three-ways-to-use-AMIs.jpg)
+
+
+# Amazon EC2 Pricing – Simple & Clear Explanation
+
+Amazon EC2 offers different pricing options so you can choose the most cost-effective way to run your servers based on your needs.
+
+---
+
+## 1. On-Demand Instances
+- Pay only for what you use (by the hour or second)
+- No long-term commitment
+- **Best for:** Short-term, unpredictable, or testing workloads
+
+---
+
+## 2. Reserved Instances (RIs)
+- Commit for 1 or 3 years
+- Save up to **75%** compared to On-Demand
+- **Best for:** Steady, predictable workloads that run continuously
+
+**RI Flexibility:**  
+The discount can automatically apply to different instance sizes in the same family and across Availability Zones in the same Region.
+
+---
+
+## 3. Spot Instances
+- Bid on unused EC2 capacity
+- Save up to **90%** compared to On-Demand
+- AWS can interrupt the instance with short notice
+- **Best for:** Flexible, fault-tolerant workloads (batch jobs, big data, CI/CD, etc.)
+
+---
+
+## 4. Savings Plans
+- Commit to a certain amount of usage (per hour) for 1 or 3 years
+- Save up to **72%**
+- More flexible than Reserved Instances (works across instance types, regions, and even other services like Lambda and Fargate)
+- **Best for:** Predictable overall usage, but you want flexibility
+
+---
+
+## 5. Dedicated Hosts vs Dedicated Instances
+
+| Feature                  | Dedicated Hosts                          | Dedicated Instances                     |
+|--------------------------|------------------------------------------|-----------------------------------------|
+| What you get             | Entire physical server just for you      | Instances on dedicated hardware         |
+| Control                  | Full control over placement              | No control over which physical server   |
+| Best for                 | Strict licensing or compliance needs     | Isolation from other customers          |
+
+![AWS Diagram](images/dedicated-diff.jpg)
+
+---
+
+## Quick Summary – When to Use What
+
+| Pricing Option         | Savings     | Commitment | Best Use Case                          |
+|------------------------|-------------|------------|----------------------------------------|
+| **On-Demand**          | None        | None       | Testing, unpredictable workloads       |
+| **Spot**               | Up to 90%   | None       | Flexible / interruptible workloads     |
+| **Savings Plans**      | Up to 72%   | 1 or 3 yrs | Predictable usage with flexibility     |
+| **Reserved Instances** | Up to 75%   | 1 or 3 yrs | Steady, long-running workloads         |
+| **Dedicated Hosts**    | Varies      | Optional   | Licensing & compliance requirements    |
+
+---
+
+## Bonus Options for Cost Optimization
+
+- **Capacity Reservations**: Reserve capacity in a specific Availability Zone for critical workloads (you pay On-Demand rates whether you use it or not).
+- **Reserved Instance flexibility**: Discounts can apply across instance sizes and Availability Zones within the same Region.
+
+# Scaling Amazon EC2
+
+In this lesson, you will learn how to:
+
+- Recognize the concepts of **scalability** and **elasticity** in AWS
+- Describe how AWS helps businesses adjust compute capacity based on changing demand
+
+---
+
+## Scalability vs Elasticity
+
+| Concept         | Meaning                                                                       | Focus                         |
+|-----------------|-------------------------------------------------------------------------------|-------------------------------|
+| **Scalability** | Ability of a system to handle increased load by adding resources              | Long-term growth              |
+| **Elasticity**  | Ability to automatically scale resources up or down based on real-time demand | Dynamic, on-demand adjustment |
+
+### Scalability
+Scalability is the ability of a system to handle more load by adding resources.
+
+- **Scale up** → Make one server stronger (add more CPU/RAM)
+- **Scale down** → Make one server weaker (reduce CPU/RAM)
+- **Scale out** → Add more servers
+- **Scale in** → Remove servers
+
+It focuses on long-term capacity planning so the system can grow and support more users.
+
+![AWS Diagram](images/Scalability.jpg)
+
+### Elasticity
+Elasticity is the ability to automatically adjust resources in real time based on **fluctuating demand**.
+
+- Scale **out** when demand is high
+- Scale **in** when demand decreases
+
+This helps you use resources efficiently and only pay for what you need, even when traffic goes up and down throughout the day.
+
+![AWS Diagram](images/Elasticity.jpg)
+
+---
+
+## Amazon EC2 Auto Scaling
+
+**Amazon EC2 Auto Scaling** automatically adjusts the number of EC2 instances based on demand.  
+This improves availability and helps control costs.
+
+It supports two types of scaling:
+
+- **Dynamic Scaling** → Reacts in real time to demand changes
+- **Predictive Scaling** → Adds instances based on predicted demand
+
+### Auto Scaling Group Settings
+
+An Auto Scaling group has three important settings:
+
+| Setting              | Description                                              | Example |
+|----------------------|----------------------------------------------------------|---------|
+| **Minimum Capacity** | Lowest number of instances that must always run          | 4       |
+| **Desired Capacity** | Ideal number of instances Auto Scaling tries to maintain | 6       |
+| **Maximum Capacity** | Highest number of instances that can be launched         | 12      |
+
+- If you don’t set desired capacity, it defaults to minimum capacity.
+- Auto Scaling always keeps the number of instances between minimum and maximum.
+
+![AWS Diagram](images/minimum.jpg)  
+![AWS Diagram](images/desired.jpg)  
+![AWS Diagram](images/maximum.jpg)
+
+---
+
+## Why Deploy Across Multiple Availability Zones?
+
+Deploying EC2 instances across **multiple Availability Zones (AZs)** is important for high availability and fault tolerance.
+
+- If one Availability Zone has an issue (power failure, network problem, etc.), your application can continue running in the other zones.
+- Combined with Auto Scaling, it automatically replaces failed instances in healthy Availability Zones.
+- This reduces the risk of downtime and improves reliability for your users.
+
+---
+
+### Simple Summary
+
+- **Scale Up / Down** = Change the power of one server  
+- **Scale Out / In** = Add or remove servers  
+- **Scalability** = Ability to grow over time  
+- **Elasticity** = Ability to automatically adjust to fluctuating demand  
+- **EC2 Auto Scaling** = Automatically adds or removes instances using Minimum, Desired, and Maximum settings  
+- **Multiple Availability Zones** = Protects your application from failures in a single location

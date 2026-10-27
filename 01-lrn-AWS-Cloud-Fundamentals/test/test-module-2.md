@@ -168,3 +168,111 @@ What is the customer's responsibility when using compute services like Amazon EC
 
 **Explanation:**  
 The customer handles the operating system, networking, and applications on the EC2 instances. AWS manages the hardware.
+
+Question -
+
+What are the required configurations when launching an Amazon EC2 instance for a web server? (Select THREE.)
+
+Choose 3.
+
+ A. Amazon Machine Image (AMI)
+
+ B. Load balancing
+
+ C. Instance type
+
+ D. Permissions
+
+ E. Storage
+
+ F. Instance termination behavior
+
+Try again
+
+Correct!
+
+ To launch an EC2 instance for a web server, configure the AMI to define the operating system and software; select the instance type to allocate CPU, memory, and storage; and set up storage options, including the type and size of the volume.Load balancing, permissions, and instance termination behavior are not required when launching a basic Amazon EC2 web server. 
+
+
+
+Question -
+
+What is an Amazon Machine Image (AMI) used for when launching an Amazon EC2 instance?
+
+Choose 1.
+
+ A. To choose the instance size
+
+ B. To pre-configure the operating system and software
+
+ C. To store instance data
+
+ D. To configure networking settings
+
+Try again
+
+Correct!
+
+ An AMI is a pre-configured virtual machine image that contains the operating system, application server, and applications. This helps to launch EC2 instances quickly with the desired software and settings.
+
+
+Question -
+A financial services company needs to run sensitive applications that handle confidential customer data and require compliance with industry regulations. They need complete control over the physical server, including instance placement and resource allocation.Which pricing option should they choose?
+
+Choose 1.
+ A. Savings Plans
+ B. Spot Instances
+ C. On Demand
+ D. Dedicated Hosts
+Try again
+Correct!
+Rationale: Dedicated Hosts provide exclusive use of a physical server, providing full control over placement and resource allocation. This is ideal for security-sensitive and licensing-specific workloads.
+
+Question -
+A startup is running a batch processing workload that can tolerate occasional interruptions, and they want to reduce costs by taking advantage of unused Amazon EC2 capacity.Which pricing option would offer them the most savings?
+
+Choose 1.
+ A. Reserved Instances
+ B. On Demand
+ C. Spot Instances
+ D. Savings Plans
+Try again
+Correct!
+Rationale: Spot Instances offer up to 90 percent off On-Demand pricing, making them the most cost-effective option for workloads that can tolerate interruptions.
+
+
+Question -
+A customer is building a new application and is unsure of their usage patterns but expects to grow and stabilize usage over time. They want to start without a long-term commitment.Which pricing option should they use?
+
+Choose 1.
+ A. Savings Plans
+ B. Spot Instances
+ C. Reserved Instances
+ D. On Demand
+Try again
+Correct!
+Rationale: On-Demand pricing is ideal for starting without commitment. The customer can test and adjust based on actual usage before committing to longer-term options.
+
+Question -
+What is the main reason for deploying Amazon EC2 instances across multiple Availability Zones?
+
+Choose 1.
+ A. To provide high availability by allowing instances in different Availability Zones to handle traffic if one Availability Zone fails
+ B. To automatically scale instances based on resource usage in each Availability Zone
+ C. To increase the power and speed of each individual instance
+ D. To decrease the cost of instances by distributing them evenly across AWS Regions
+Try again
+Correct!
+Rationale: By deploying instances across multiple Availability Zones, businesses can avoid service disruption in the event of an Availability Zone failure.
+
+Question -
+How does AWS make sure that a business can meet fluctuating demand without over-provisioning resources?
+
+Choose 1.
+ A. By providing fixed resources that are always available
+ B. By offering resources that are always running, regardless of demand
+ C. By requiring businesses to purchase excess resources in advance to handle peak demand
+ D. By allowing businesses to provision resources that automatically scale based on demand
+Try again
+Correct!
+Rationale: The AWS scalability and elasticity features automatically adjust resources to meet demand, resulting cost-efficiency and performance.
